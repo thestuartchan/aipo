@@ -22,33 +22,33 @@
   header{border:1px solid var(--line);background:linear-gradient(160deg,var(--panel),#091110);border-radius:10px;padding:18px;position:relative;overflow:hidden}
   header::before{content:"";position:absolute;inset:0;background:radial-gradient(600px 120px at 8% -10%,rgba(45,212,191,.10),transparent 70%);pointer-events:none}
   .tickrow{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
-  .tick{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:44px;letter-spacing:1px;color:var(--tl);line-height:.9}
-  .tick .q{color:var(--dim);font-size:22px}
-  .exch{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);letter-spacing:2px;border:1px dashed var(--line);padding:3px 7px;border-radius:4px;margin-bottom:6px}
-  .coname{font-size:14px;color:var(--mut);font-weight:500;margin-top:6px}
+  .tick{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:53px;letter-spacing:1px;color:var(--tl);line-height:.9}
+  .tick .q{color:var(--dim);font-size:26px}
+  .exch{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--dim);letter-spacing:2px;border:1px dashed var(--line);padding:3px 7px;border-radius:4px;margin-bottom:6px}
+  .coname{font-size:17px;color:var(--mut);font-weight:500;margin-top:6px}
   .statusbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-  .pill{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.5px;border:1px solid var(--line);background:var(--panel2);padding:5px 9px;border-radius:5px;color:var(--mut)}
+  .pill{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.5px;border:1px solid var(--line);background:var(--panel2);padding:5px 9px;border-radius:5px;color:var(--mut)}
   .pill b{color:var(--txt);font-weight:600}
   .pill.live{border-color:rgba(45,212,191,.4);color:var(--tl)}.pill.live b{color:var(--tl)}
   .pill.warn{border-color:rgba(255,176,0,.35);color:var(--amber)}.pill.warn b{color:var(--amber)}
-  h2{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:3px;color:var(--tl);text-transform:uppercase;margin:30px 0 12px;display:flex;align-items:center;gap:10px}
+  h2{font-family:'IBM Plex Mono',monospace;font-size:14px;letter-spacing:3px;color:var(--tl);text-transform:uppercase;margin:30px 0 12px;display:flex;align-items:center;gap:10px}
   h2::before{content:"";width:6px;height:6px;background:var(--tl);transform:rotate(45deg);flex:none}
   h2 .num{color:var(--dim);font-weight:400}
-  .lead{color:var(--mut);font-size:13.5px;margin-bottom:14px;max-width:80ch}
+  .lead{color:var(--mut);font-size:16px;margin-bottom:14px;max-width:80ch}
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   .stat{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:13px 14px}
-  .stat .k{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase}
-  .stat .v{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:700;margin-top:5px;letter-spacing:.5px}
-  .stat .sub{font-size:11px;color:var(--mut);margin-top:3px}
+  .stat .k{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase}
+  .stat .v{font-family:'IBM Plex Mono',monospace;font-size:29px;font-weight:700;margin-top:5px;letter-spacing:.5px}
+  .stat .sub{font-size:13px;color:var(--mut);margin-top:3px}
   .v.tl{color:var(--tl)}.v.grn{color:var(--grn)}.v.red{color:var(--red)}.v.blu{color:var(--blu)}.v.amber{color:var(--amber)}
-  .tbl{width:100%;border-collapse:collapse;border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:13px}
-  .tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);text-align:left;padding:10px 12px;background:var(--panel2);border-bottom:1px solid var(--line);font-weight:600}
+  .tbl{width:100%;border-collapse:collapse;border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:16px}
+  .tbl th{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);text-align:left;padding:10px 12px;background:var(--panel2);border-bottom:1px solid var(--line);font-weight:600}
   .tbl td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
   .tbl td:first-child{color:var(--txt);font-weight:500}
   .tbl tr:last-child td{border-bottom:none}
   .tbl tr:hover td{background:rgba(45,212,191,.03)}
   .num-c{font-family:'IBM Plex Mono',monospace;color:var(--txt)!important}
-  .tag{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.5px;padding:2px 6px;border-radius:4px;white-space:nowrap}
+  .tag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.5px;padding:2px 6px;border-radius:4px;white-space:nowrap}
   .tag.lo{background:rgba(63,185,80,.12);color:var(--grn);border:1px solid rgba(63,185,80,.3)}
   .tag.med{background:rgba(255,176,0,.12);color:var(--amber);border:1px solid rgba(255,176,0,.3)}
   .tag.hi{background:rgba(248,81,73,.12);color:var(--red);border:1px solid rgba(248,81,73,.3)}
@@ -56,19 +56,19 @@
   .risks{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .risk{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:12px 13px;border-left:3px solid var(--dim)}
   .risk.hi{border-left-color:var(--red)}.risk.med{border-left-color:var(--amber)}
-  .risk .rt{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--txt);display:flex;justify-content:space-between;gap:8px;align-items:center}
-  .risk .rb{font-size:12.5px;color:var(--mut);margin-top:6px}
-  .banner{border:1px solid rgba(255,176,0,.3);background:rgba(255,176,0,.06);border-radius:8px;padding:12px 15px;font-size:12.5px;color:var(--mut);display:flex;gap:10px;align-items:flex-start}
-  .banner b{color:var(--amber);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px}
+  .risk .rt{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:var(--txt);display:flex;justify-content:space-between;gap:8px;align-items:center}
+  .risk .rb{font-size:15px;color:var(--mut);margin-top:6px}
+  .banner{border:1px solid rgba(255,176,0,.3);background:rgba(255,176,0,.06);border-radius:8px;padding:12px 15px;font-size:15px;color:var(--mut);display:flex;gap:10px;align-items:flex-start}
+  .banner b{color:var(--amber);font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:1px}
   .nav{display:flex;align-items:center;gap:8px;margin-bottom:16px;font-family:'IBM Plex Mono',monospace;flex-wrap:wrap}
-  .navbrand{font-size:11px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-right:4px}
-  .navlink{font-size:13px;letter-spacing:.5px;padding:7px 14px;border-radius:8px;border:1px solid var(--line);color:var(--mut);text-decoration:none;background:var(--panel)}
+  .navbrand{font-size:13px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-right:4px}
+  .navlink{font-size:16px;letter-spacing:.5px;padding:7px 14px;border-radius:8px;border:1px solid var(--line);color:var(--mut);text-decoration:none;background:var(--panel)}
   .navlink:hover{color:var(--txt);border-color:var(--dim)}
   .navlink.active{color:#04101f;background:var(--blu);border-color:var(--blu);font-weight:700}
-  footer{margin-top:34px;border-top:1px solid var(--line);padding-top:16px;font-size:11.5px;color:var(--dim)}
+  footer{margin-top:34px;border-top:1px solid var(--line);padding-top:16px;font-size:14px;color:var(--dim)}
   footer .mono{font-family:'IBM Plex Mono',monospace;color:var(--mut)}
   .scrollx{overflow-x:auto}
-  @media (max-width:720px){.grid{grid-template-columns:1fr 1fr}.risks{grid-template-columns:1fr}.tick{font-size:34px}}
+  @media (max-width:720px){.grid{grid-template-columns:1fr 1fr}.risks{grid-template-columns:1fr}.tick{font-size:41px}}
   @media print{body{background:#fff;color:#000;background-image:none}.stat,.tbl,.risk,header,.banner{break-inside:avoid}}
 </style>
 </head>
@@ -98,10 +98,10 @@
 
   <div class="banner rise" style="margin-top:14px;animation-delay:.04s">
     <b>⚠ READ</b>
-    <span>Confidential filing was reported ~22 May (WSJ/CNBC), but <b style="font-size:12.5px;letter-spacing:0">OpenAI hasn't publicly confirmed it</b> — and rival <b style="font-size:12.5px;letter-spacing:0">Anthropic announced its own confidential filing first on 1 Jun</b>, now valued higher (~$965B vs $852B). Real financials aren't public until ~15 days before the roadshow (likely August); everything below is reported/estimated or from a <b style="font-size:12.5px;letter-spacing:0">leaked, reconstructed</b> cap table. Treat accordingly.</span>
+    <span>Confidential filing was reported ~22 May (WSJ/CNBC), but <b style="font-size:15px;letter-spacing:0">OpenAI hasn't publicly confirmed it</b> — and rival <b style="font-size:15px;letter-spacing:0">Anthropic announced its own confidential filing first on 1 Jun</b>, now valued higher (~$965B vs $852B). Real financials aren't public until ~15 days before the roadshow (likely August); everything below is reported/estimated or from a <b style="font-size:15px;letter-spacing:0">leaked, reconstructed</b> cap table. Treat accordingly.</span>
   </div>
 
-  <h2 class="rise"><span class="num">01 /</span> Snapshot <span style="font-size:9px;color:var(--dim);letter-spacing:1px;margin-left:4px">(reported / estimated)</span></h2>
+  <h2 class="rise"><span class="num">01 /</span> Snapshot <span style="font-size:11px;color:var(--dim);letter-spacing:1px;margin-left:4px">(reported / estimated)</span></h2>
   <div class="grid rise">
     <div class="stat"><div class="k">Last Private Val.</div><div class="v tl">$852B</div><div class="sub">Mar '26 round; now behind Anthropic (~$965B)</div></div>
     <div class="stat"><div class="k">IPO Target</div><div class="v tl">&gt;$1T</div><div class="sub">would be largest US IPO ever</div></div>
