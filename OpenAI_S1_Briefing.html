@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenAI · S-1 Trading Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070b0a;--panel:#0c1413;--panel2:#101b19;--line:#1c2c29;
+    --txt:#e6f1ee;--mut:#84a39b;--dim:#557068;
+    --tl:#2dd4bf;--tl2:#10b981;--grn:#3fb950;--red:#f85149;--blu:#58a6ff;--amber:#ffb000;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--txt);font-family:'IBM Plex Sans',sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;
+    background-image:linear-gradient(rgba(45,212,191,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(45,212,191,.018) 1px,transparent 1px);background-size:42px 42px}
+  .wrap{max-width:1040px;margin:0 auto;padding:22px 18px 70px}
+  .rise{opacity:0;transform:translateY(10px);animation:rise .6s ease forwards}
+  @keyframes rise{to{opacity:1;transform:translateY(0)}}
+  header{border:1px solid var(--line);background:linear-gradient(160deg,var(--panel),#091110);border-radius:10px;padding:18px;position:relative;overflow:hidden}
+  header::before{content:"";position:absolute;inset:0;background:radial-gradient(600px 120px at 8% -10%,rgba(45,212,191,.10),transparent 70%);pointer-events:none}
+  .tickrow{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+  .tick{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:44px;letter-spacing:1px;color:var(--tl);line-height:.9}
+  .tick .q{color:var(--dim);font-size:22px}
+  .exch{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);letter-spacing:2px;border:1px dashed var(--line);padding:3px 7px;border-radius:4px;margin-bottom:6px}
+  .coname{font-size:14px;color:var(--mut);font-weight:500;margin-top:6px}
+  .statusbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .pill{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.5px;border:1px solid var(--line);background:var(--panel2);padding:5px 9px;border-radius:5px;color:var(--mut)}
+  .pill b{color:var(--txt);font-weight:600}
+  .pill.live{border-color:rgba(45,212,191,.4);color:var(--tl)}.pill.live b{color:var(--tl)}
+  .pill.warn{border-color:rgba(255,176,0,.35);color:var(--amber)}.pill.warn b{color:var(--amber)}
+  h2{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:3px;color:var(--tl);text-transform:uppercase;margin:30px 0 12px;display:flex;align-items:center;gap:10px}
+  h2::before{content:"";width:6px;height:6px;background:var(--tl);transform:rotate(45deg);flex:none}
+  h2 .num{color:var(--dim);font-weight:400}
+  .lead{color:var(--mut);font-size:13.5px;margin-bottom:14px;max-width:80ch}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .stat{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:13px 14px}
+  .stat .k{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase}
+  .stat .v{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:700;margin-top:5px;letter-spacing:.5px}
+  .stat .sub{font-size:11px;color:var(--mut);margin-top:3px}
+  .v.tl{color:var(--tl)}.v.grn{color:var(--grn)}.v.red{color:var(--red)}.v.blu{color:var(--blu)}.v.amber{color:var(--amber)}
+  .tbl{width:100%;border-collapse:collapse;border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:13px}
+  .tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);text-align:left;padding:10px 12px;background:var(--panel2);border-bottom:1px solid var(--line);font-weight:600}
+  .tbl td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
+  .tbl td:first-child{color:var(--txt);font-weight:500}
+  .tbl tr:last-child td{border-bottom:none}
+  .tbl tr:hover td{background:rgba(45,212,191,.03)}
+  .num-c{font-family:'IBM Plex Mono',monospace;color:var(--txt)!important}
+  .tag{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.5px;padding:2px 6px;border-radius:4px;white-space:nowrap}
+  .tag.lo{background:rgba(63,185,80,.12);color:var(--grn);border:1px solid rgba(63,185,80,.3)}
+  .tag.med{background:rgba(255,176,0,.12);color:var(--amber);border:1px solid rgba(255,176,0,.3)}
+  .tag.hi{background:rgba(248,81,73,.12);color:var(--red);border:1px solid rgba(248,81,73,.3)}
+  .tag.flag{background:rgba(88,166,255,.12);color:var(--blu);border:1px solid rgba(88,166,255,.3)}
+  .risks{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .risk{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:12px 13px;border-left:3px solid var(--dim)}
+  .risk.hi{border-left-color:var(--red)}.risk.med{border-left-color:var(--amber)}
+  .risk .rt{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--txt);display:flex;justify-content:space-between;gap:8px;align-items:center}
+  .risk .rb{font-size:12.5px;color:var(--mut);margin-top:6px}
+  .banner{border:1px solid rgba(255,176,0,.3);background:rgba(255,176,0,.06);border-radius:8px;padding:12px 15px;font-size:12.5px;color:var(--mut);display:flex;gap:10px;align-items:flex-start}
+  .banner b{color:var(--amber);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px}
+  .nav{display:flex;align-items:center;gap:8px;margin-bottom:16px;font-family:'IBM Plex Mono',monospace;flex-wrap:wrap}
+  .navbrand{font-size:11px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-right:4px}
+  .navlink{font-size:13px;letter-spacing:.5px;padding:7px 14px;border-radius:8px;border:1px solid var(--line);color:var(--mut);text-decoration:none;background:var(--panel)}
+  .navlink:hover{color:var(--txt);border-color:var(--dim)}
+  .navlink.active{color:#04101f;background:var(--blu);border-color:var(--blu);font-weight:700}
+  footer{margin-top:34px;border-top:1px solid var(--line);padding-top:16px;font-size:11.5px;color:var(--dim)}
+  footer .mono{font-family:'IBM Plex Mono',monospace;color:var(--mut)}
+  .scrollx{overflow-x:auto}
+  @media (max-width:720px){.grid{grid-template-columns:1fr 1fr}.risks{grid-template-columns:1fr}.tick{font-size:34px}}
+  @media print{body{background:#fff;color:#000;background-image:none}.stat,.tbl,.risk,header,.banner{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="nav">
+    <span class="navbrand">IPO Watch</span>
+    <a class="navlink" href="index.html">Dashboard</a>
+    <a class="navlink" href="MegaIPO_Catalyst_Calendar.html">Calendar</a>
+    <a class="navlink" href="SPCX_S1_Briefing.html">SpaceX S-1</a>
+    <a class="navlink active">OpenAI S-1</a>
+    <a class="navlink" href="Anthropic_S1_Briefing.html">Anthropic S-1</a>
+  </div>
+
+  <header class="rise">
+    <div class="tickrow"><div class="tick">OAI <span class="q">?</span></div><div class="exch">EXCHANGE / TICKER — UNCONFIRMED</div></div>
+    <div class="coname">OpenAI Group PBC — Public Benefit Corp. controlled by the nonprofit OpenAI Foundation</div>
+    <div class="statusbar">
+      <span class="pill warn">● CONFIDENTIAL FILING <b>reported ~22 MAY</b></span>
+      <span class="pill">PUBLIC S-1 <b>~AUG 2026 (est.)</b></span>
+      <span class="pill">TARGET LIST <b>~SEP / Q4 2026</b></span>
+      <span class="pill">LEAD <b>GOLDMAN · MS · JPM</b></span>
+      <span class="pill">vs ANTH: <b>filed first 1 JUN · now ~$965B</b></span>
+    </div>
+  </header>
+
+  <div class="banner rise" style="margin-top:14px;animation-delay:.04s">
+    <b>⚠ READ</b>
+    <span>Confidential filing was reported ~22 May (WSJ/CNBC), but <b style="font-size:12.5px;letter-spacing:0">OpenAI hasn't publicly confirmed it</b> — and rival <b style="font-size:12.5px;letter-spacing:0">Anthropic announced its own confidential filing first on 1 Jun</b>, now valued higher (~$965B vs $852B). Real financials aren't public until ~15 days before the roadshow (likely August); everything below is reported/estimated or from a <b style="font-size:12.5px;letter-spacing:0">leaked, reconstructed</b> cap table. Treat accordingly.</span>
+  </div>
+
+  <h2 class="rise"><span class="num">01 /</span> Snapshot <span style="font-size:9px;color:var(--dim);letter-spacing:1px;margin-left:4px">(reported / estimated)</span></h2>
+  <div class="grid rise">
+    <div class="stat"><div class="k">Last Private Val.</div><div class="v tl">$852B</div><div class="sub">Mar '26 round; now behind Anthropic (~$965B)</div></div>
+    <div class="stat"><div class="k">IPO Target</div><div class="v tl">&gt;$1T</div><div class="sub">would be largest US IPO ever</div></div>
+    <div class="stat"><div class="k">Annualised Revenue</div><div class="v grn">~$25B</div><div class="sub">~$2B/mo; FY25 actual rev ~$13.1B</div></div>
+    <div class="stat"><div class="k">2026E Operating Loss</div><div class="v red">~−$14B</div><div class="sub">profit not expected until ~2030</div></div>
+    <div class="stat"><div class="k">Q1'26 Op. Margin</div><div class="v red">~−122%</div><div class="sub">≈ spends $2+ per $1 of revenue</div></div>
+    <div class="stat"><div class="k">Rev. Multiple @ $1T</div><div class="v amber">~34–40×</div><div class="sub">vs SPCX ~95×, diff. growth story</div></div>
+    <div class="stat"><div class="k">Enterprise % Rev.</div><div class="v">&gt;40%</div><div class="sub">on track toward parity w/ consumer</div></div>
+    <div class="stat"><div class="k">Users</div><div class="v">50M+9M</div><div class="sub">consumer subs + business; 800M WAU</div></div>
+    <div class="stat"><div class="k">Funding Gap (HSBC)</div><div class="v amber">~$207B</div><div class="sub">est. add'l needed by 2030</div></div>
+  </div>
+
+  <h2 class="rise"><span class="num">02 /</span> Cap Table <span class="tag flag" style="margin-left:6px">LEAKED / RECONSTRUCTED — NOT OFFICIAL</span></h2>
+  <p class="lead">From a cap table circulated on X (attributed to investor Sheel Mohnot), reconstructed from filings + secondary data at the $852B mark. Directionally useful, not confirmed. The governance structure is the real story.</p>
+  <div class="scrollx rise">
+  <table class="tbl">
+    <tr><th>Holder</th><th>Stake</th><th>Est. value / note</th></tr>
+    <tr><td>Microsoft (MSFT)</td><td class="num-c">26.79%</td><td>~$228B on ~$13B in → ~17.6× ; but only mid-single-% of MSFT's cap — diluted proxy. Now lists OpenAI as a competitor.</td></tr>
+    <tr><td>OpenAI Foundation (nonprofit)</td><td class="num-c">25.8%</td><td>Zero cost basis; controls 100% of board appointments. The governance overhang.</td></tr>
+    <tr><td>Employees (curr./former)</td><td class="num-c">~19.35%</td><td>Lockup-relevant supply once public.</td></tr>
+    <tr><td>SoftBank</td><td class="num-c">11.66%</td><td>~$99B on ~$64.6B committed. The most leveraged, concentrated public proxy (via SFTBY/9984).</td></tr>
+    <tr><td>VC / institutional</td><td class="num-c">7.83%</td><td>Thrive, Khosla, sovereigns, etc.</td></tr>
+    <tr><td>Amazon (AMZN)</td><td class="num-c">4.66%</td><td>~$40B; also a large infra (AWS) counterparty.</td></tr>
+    <tr><td>Nvidia (NVDA)</td><td class="num-c">3.47%</td><td>~$29.6B vs ~$30B cost → roughly flat / slightly underwater.</td></tr>
+    <tr><td>Retail / secondary</td><td class="num-c">0.40%</td><td>Tiny pre-IPO retail footprint.</td></tr>
+    <tr><td>Sam Altman</td><td class="num-c">0%</td><td>Equity grant "TBD/pending" the PBC conversion. CEO currently holds no shares.</td></tr>
+  </table>
+  </div>
+
+  <h2 class="rise"><span class="num">03 /</span> Risk Factors — what the roadshow will fight over</h2>
+  <p class="lead">No public risk section yet (confidential). These are the structural debates already visible. Severity tags are my read.</p>
+  <div class="risks rise">
+    <div class="risk hi"><div class="rt">Cash burn / path to profit <span class="tag hi">HIGH</span></div><div class="rb">~$14B operating loss in '26; not profitable until ~2030; HSBC sees ~$207B more funding needed. Most cash-hungry name ever to approach the public market.</div></div>
+    <div class="risk hi"><div class="rt">Valuation <span class="tag hi">HIGH</span></div><div class="rb">&gt;$1T target on ~$25B ARR = ~34–40× revenue while deeply loss-making. Entirely a faith-in-dominance multiple.</div></div>
+    <div class="risk hi"><div class="rt">Governance structure <span class="tag hi">HIGH</span></div><div class="rb">For-profit PBC controlled by a nonprofit Foundation that appoints the board; CEO holds 0% equity. Genuine overhang public investors rarely accept cleanly.</div></div>
+    <div class="risk med"><div class="rt">Microsoft co-opetition <span class="tag med">MED</span></div><div class="rb">Largest holder now names OpenAI a competitor; rev-share capped through 2030; OpenAI can now use any cloud. Relationship value is nuanced, not pure tailwind.</div></div>
+    <div class="risk med"><div class="rt">Timeline slip <span class="tag med">MED</span></div><div class="rb">CFO reportedly signaled "not ready"; missed internal targets. SEC review runs 60–90d. September could slip to Q1 2027.</div></div>
+    <div class="risk med"><div class="rt">Compute concentration <span class="tag med">MED</span></div><div class="rb">~$600B of 5-yr commitments (Oracle ~$300B, AWS ~$38B). Huge fixed obligations against uncertain revenue.</div></div>
+  </div>
+
+  <h2 class="rise"><span class="num">04 /</span> Ways to Express It</h2>
+  <div class="scrollx rise">
+  <table class="tbl">
+    <tr><th>Vehicle</th><th>Exposure</th><th>The read</th></tr>
+    <tr><td>SoftBank (SFTBY / 9984.T)</td><td class="num-c">~12% OpenAI + ~90% Arm</td><td><b>Most leveraged public proxy.</b> OpenAI + Arm ≈ ⅔ of its assets → moves hard on IPO sentiment, but debt-funded and asymmetric to a weak debut.</td></tr>
+    <tr><td>Microsoft (MSFT)</td><td class="num-c">~27% stake</td><td>Largest holder but stake is only mid-single-% of cap → <b>diluted</b>. Trades on Azure/Copilot/earnings far more than on OpenAI's listing.</td></tr>
+    <tr><td>OAI at IPO</td><td class="num-c">Direct</td><td>If/when it lists — via syndicate brokerages. No ticker/exchange confirmed yet.</td></tr>
+    <tr><td>ARK Venture (ARKVX)</td><td class="num-c">Direct pre-IPO</td><td>Holds OpenAI; interval fund, monthly NAV, limited liquidity.</td></tr>
+    <tr><td>Destiny Tech100 (DXYZ)</td><td class="num-c">Small</td><td><span class="tag hi">TRAP</span> Public but historically a steep premium to NAV.</td></tr>
+    <tr><td>Forge / Hiive (secondary)</td><td class="num-c">Direct</td><td>Accredited only; thin, wide spreads.</td></tr>
+  </table>
+  </div>
+
+  <h2 class="rise"><span class="num">05 /</span> Verify Before Acting</h2>
+  <div class="scrollx rise">
+  <table class="tbl">
+    <tr><th>Item</th><th>Status</th><th>Note</th></tr>
+    <tr><td>All financials (rev, loss, margins, users)</td><td><span class="tag flag">REPORTED / EST.</span></td><td>Confidential filing — real numbers land ~15d pre-roadshow (~Aug). Until then these are press + analyst estimates.</td></tr>
+    <tr><td>Entire cap table</td><td><span class="tag hi">UNOFFICIAL</span></td><td>Leaked/reconstructed doc on X. Not from EDGAR. Stakes/values are approximations.</td></tr>
+    <tr><td>Ticker "OAI" / Nasdaq</td><td><span class="tag med">UNCONFIRMED</span></td><td>Exchange + ticker only confirmed in the public registration. The graphic's "OAI" is a guess.</td></tr>
+    <tr><td>Sept / Q4 2026 listing</td><td><span class="tag med">TARGET</span></td><td>Anthropic filed first (1 Jun) &amp; may list this fall too; OpenAI realistic range Sep–Nov '26, slip risk to Q1 '27.</td></tr>
+    <tr><td>&gt;$1T valuation</td><td><span class="tag med">TARGET</span></td><td>Aspiration above the $852B last round; set at roadshow on demand.</td></tr>
+  </table>
+  </div>
+
+  <footer class="rise">
+    <div class="mono">SOURCE OF TRUTH → SEC EDGAR once the public S-1 lands (~Aug 2026). Nothing here is from the filing yet.</div>
+    <div style="margin-top:8px">Compiled from CNBC, Reuters, Bloomberg, WSJ, Investing.com and a widely-circulated reconstructed cap table (unofficial). As of 5 Jun 2026 — note Anthropic announced its confidential filing first (1 Jun). Reference sheet, not a recommendation.</div>
+  </footer>
+
+</div>
+</body>
+</html>

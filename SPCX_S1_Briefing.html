@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPCX · S-1 Trading Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070a0f;
+    --panel:#0e131c;
+    --panel2:#121926;
+    --line:#1e2838;
+    --txt:#e6edf3;
+    --mut:#8593a6;
+    --dim:#5a6679;
+    --amber:#ffb000;
+    --amber2:#f0b429;
+    --grn:#3fb950;
+    --red:#f85149;
+    --blu:#58a6ff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--txt);
+    font-family:'IBM Plex Sans',sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      linear-gradient(rgba(255,176,0,0.018) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,176,0,0.018) 1px,transparent 1px);
+    background-size:42px 42px;
+  }
+  .wrap{max-width:1040px;margin:0 auto;padding:22px 18px 70px}
+  .mono{font-family:'IBM Plex Mono',monospace}
+
+  /* fade-in */
+  .rise{opacity:0;transform:translateY(10px);animation:rise .6s ease forwards}
+  @keyframes rise{to{opacity:1;transform:translateY(0)}}
+
+  /* HEADER */
+  header{border:1px solid var(--line);background:linear-gradient(160deg,var(--panel),#0a0e15);
+    border-radius:10px;padding:18px 18px 16px;position:relative;overflow:hidden}
+  header::before{content:"";position:absolute;inset:0;background:
+    radial-gradient(600px 120px at 8% -10%,rgba(255,176,0,0.10),transparent 70%);pointer-events:none}
+  .tickrow{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+  .tick{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:46px;letter-spacing:2px;
+    color:var(--amber);line-height:.9}
+  .exch{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);letter-spacing:2px;
+    border:1px solid var(--line);padding:3px 7px;border-radius:4px;margin-bottom:5px}
+  .coname{font-size:14px;color:var(--mut);font-weight:500;margin-top:6px}
+  .statusbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .pill{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.5px;
+    border:1px solid var(--line);background:var(--panel2);padding:5px 9px;border-radius:5px;color:var(--mut)}
+  .pill b{color:var(--txt);font-weight:600}
+  .pill.live{border-color:rgba(63,185,80,.4);color:var(--grn)}
+  .pill.live b{color:var(--grn)}
+
+  /* SECTION */
+  h2{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:3px;color:var(--amber2);
+    text-transform:uppercase;margin:30px 0 12px;display:flex;align-items:center;gap:10px}
+  h2::before{content:"";width:6px;height:6px;background:var(--amber);transform:rotate(45deg);flex:none}
+  h2 .num{color:var(--dim);font-weight:400}
+  .lead{color:var(--mut);font-size:13.5px;margin-bottom:14px;max-width:80ch}
+
+  /* STAT GRID */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .stat{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:13px 14px}
+  .stat .k{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase}
+  .stat .v{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:700;margin-top:5px;letter-spacing:.5px}
+  .stat .sub{font-size:11px;color:var(--mut);margin-top:3px}
+  .v.amber{color:var(--amber)} .v.grn{color:var(--grn)} .v.red{color:var(--red)} .v.blu{color:var(--blu)}
+
+  /* TIMELINE */
+  .timeline{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:6px 4px}
+  .tl{display:flex;flex-direction:column}
+  .tev{display:grid;grid-template-columns:108px 18px 1fr;gap:0;align-items:start;padding:9px 12px}
+  .tev .d{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--amber2);padding-top:1px}
+  .tev .dot{position:relative;display:flex;justify-content:center}
+  .tev .dot span{width:9px;height:9px;border-radius:50%;background:var(--panel2);border:2px solid var(--dim);margin-top:4px;z-index:2}
+  .tev .dot::before{content:"";position:absolute;top:0;bottom:-18px;width:2px;background:var(--line)}
+  .tev:last-child .dot::before{display:none}
+  .tev.hot .dot span{background:var(--amber);border-color:var(--amber);box-shadow:0 0 10px rgba(255,176,0,.6)}
+  .tev.warn .dot span{background:var(--red);border-color:var(--red)}
+  .tev .lbl{font-size:13px}
+  .tev .lbl b{font-weight:600}
+  .tev .lbl small{display:block;color:var(--mut);font-size:11.5px;margin-top:1px}
+
+  /* TABLE */
+  .tbl{width:100%;border-collapse:collapse;border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:13px}
+  .tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;
+    color:var(--dim);text-align:left;padding:10px 12px;background:var(--panel2);border-bottom:1px solid var(--line);font-weight:600}
+  .tbl td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
+  .tbl td:first-child{color:var(--txt);font-weight:500}
+  .tbl tr:last-child td{border-bottom:none}
+  .tbl tr:hover td{background:rgba(255,176,0,.03)}
+  .num-c{font-family:'IBM Plex Mono',monospace;color:var(--txt)!important}
+  .tag{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.5px;padding:2px 6px;border-radius:4px;white-space:nowrap}
+  .tag.lo{background:rgba(63,185,80,.12);color:var(--grn);border:1px solid rgba(63,185,80,.3)}
+  .tag.med{background:rgba(255,176,0,.12);color:var(--amber);border:1px solid rgba(255,176,0,.3)}
+  .tag.hi{background:rgba(248,81,73,.12);color:var(--red);border:1px solid rgba(248,81,73,.3)}
+  .tag.flag{background:rgba(88,166,255,.12);color:var(--blu);border:1px solid rgba(88,166,255,.3)}
+
+  /* RISK CARDS */
+  .risks{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .risk{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:12px 13px;border-left:3px solid var(--dim)}
+  .risk.hi{border-left-color:var(--red)} .risk.med{border-left-color:var(--amber)}
+  .risk .rt{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--txt);display:flex;justify-content:space-between;gap:8px;align-items:center}
+  .risk .rb{font-size:12.5px;color:var(--mut);margin-top:6px}
+
+  /* CALLOUT */
+  .callout{border:1px solid rgba(88,166,255,.3);background:rgba(88,166,255,.05);border-radius:8px;padding:14px 16px}
+  .callout h3{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--blu);text-transform:uppercase;margin-bottom:8px}
+  .callout ul{list-style:none;font-size:13px;color:var(--mut)}
+  .callout li{padding:4px 0 4px 18px;position:relative}
+  .callout li::before{content:"▹";position:absolute;left:0;color:var(--blu)}
+  .callout li b{color:var(--txt);font-weight:600}
+
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  .nav{display:flex;align-items:center;gap:8px;margin-bottom:16px;font-family:'IBM Plex Mono',monospace;flex-wrap:wrap}
+  .navbrand{font-size:11px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-right:4px}
+  .navlink{font-size:13px;letter-spacing:.5px;padding:7px 14px;border-radius:8px;border:1px solid var(--line);color:var(--mut);text-decoration:none;background:var(--panel)}
+  .navlink:hover{color:var(--txt);border-color:var(--dim)}
+  .navlink.active{color:#04101f;background:var(--blu);border-color:var(--blu);font-weight:700}
+  footer{margin-top:34px;border-top:1px solid var(--line);padding-top:16px;font-size:11.5px;color:var(--dim)}
+  footer .mono{color:var(--mut)}
+  footer a{color:var(--blu);text-decoration:none}
+
+  @media (max-width:720px){
+    .grid{grid-template-columns:1fr 1fr}
+    .risks{grid-template-columns:1fr}
+    .twocol{grid-template-columns:1fr}
+    .tick{font-size:38px}
+    .tev{grid-template-columns:92px 18px 1fr}
+    .scrollx{overflow-x:auto}
+  }
+  @media print{
+    body{background:#fff;color:#000;background-image:none}
+    .stat,.tbl,.risk,.timeline,header,.callout{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="nav">
+    <span class="navbrand">IPO Watch</span>
+    <a class="navlink" href="index.html">Dashboard</a>
+    <a class="navlink" href="MegaIPO_Catalyst_Calendar.html">Calendar</a>
+    <a class="navlink active">SpaceX S-1</a>
+    <a class="navlink" href="OpenAI_S1_Briefing.html">OpenAI S-1</a>
+    <a class="navlink" href="Anthropic_S1_Briefing.html">Anthropic S-1</a>
+  </div>
+
+  <header class="rise">
+    <div class="tickrow">
+      <div class="tick">SPCX</div>
+      <div class="exch">NASDAQ + NASDAQ TEXAS</div>
+    </div>
+    <div class="coname">Space Exploration Technologies Corp. — incl. Starlink, Launch, xAI (merged Feb 2026)</div>
+    <div class="statusbar">
+      <span class="pill live">● S-1/A AMD.1 <b>1 JUN 2026</b></span>
+      <span class="pill live">● ROADSHOW LIVE <b>since 4 JUN</b></span>
+      <span class="pill">PRICE <b>11 JUN</b> · TRADE <b>12 JUN</b></span>
+      <span class="pill">FIXED PRICE <b>$135</b> (pre-roadshow)</span>
+      <span class="pill">LEAD <b>GS · MS · BofA · Citi · JPM · Barclays</b></span>
+    </div>
+  </header>
+
+  <!-- SNAPSHOT -->
+  <h2 class="rise" style="animation-delay:.05s"><span class="num">01 /</span> Snapshot</h2>
+  <div class="grid rise" style="animation-delay:.08s">
+    <div class="stat"><div class="k">Offer Price</div><div class="v amber">$135</div><div class="sub">fixed pre-roadshow (unusual) · 555.6M sh</div></div>
+    <div class="stat"><div class="k">Valuation</div><div class="v amber">~$1.77T</div><div class="sub">7th-largest US co; above Tesla (~$1.6T)</div></div>
+    <div class="stat"><div class="k">Raise</div><div class="v">$75B</div><div class="sub">largest IPO ever — ~3× Alibaba</div></div>
+    <div class="stat"><div class="k">FY25 Revenue</div><div class="v grn">$18.7B</div><div class="sub">+33% YoY (FY24 $14.1B)</div></div>
+    <div class="stat"><div class="k">FY25 Net Loss (GAAP)</div><div class="v red">−$4.94B</div><div class="sub">adj. EBITDA +$6.6B; accum. deficit ~$41.3B</div></div>
+    <div class="stat"><div class="k">Rev. Multiple</div><div class="v amber">~95×</div><div class="sub">trailing sales @ $1.77T</div></div>
+    <div class="stat"><div class="k">Public Float</div><div class="v">~5%</div><div class="sub">only ~5% of shares trade post-IPO</div></div>
+    <div class="stat"><div class="k">Musk Equity</div><div class="v blu">~42%</div><div class="sub">economic interest</div></div>
+    <div class="stat"><div class="k">Musk Voting</div><div class="v blu">&gt;85%</div><div class="sub">dual-class super-voting (10×)</div></div>
+  </div>
+
+  <!-- CATALYSTS -->
+  <h2 class="rise"><span class="num">02 /</span> Catalyst Calendar — the dates that move the tape</h2>
+  <div class="timeline rise scrollx">
+    <div class="tl">
+      <div class="tev"><div class="d">01 APR 26</div><div class="dot"><span></span></div><div class="lbl"><b>Confidential S-1</b><small>Worst single TSLA read in the event set (−10.5% / 10d, per backtest below)</small></div></div>
+      <div class="tev"><div class="d">04 MAY 26</div><div class="dot"><span></span></div><div class="lbl"><b>5-for-1 stock split</b><small>All per-share S-1 figures retroactively adjusted — verify split basis on any quote</small></div></div>
+      <div class="tev"><div class="d">20 MAY 26</div><div class="dot"><span></span></div><div class="lbl"><b>Public S-1 filed</b><small>Risk factors, cap table, financials now on SEC EDGAR</small></div></div>
+      <div class="tev"><div class="d">01 JUN 26</div><div class="dot"><span></span></div><div class="lbl"><b>S-1/A Amd.1 · $135 fixed price set</b><small>Unusual: price fixed before the roadshow. Nasdaq + Nasdaq Texas confirmed.</small></div></div>
+      <div class="tev hot"><div class="d">04 JUN 26</div><div class="dot"><span></span></div><div class="lbl"><b>Roadshow begins (LIVE)</b><small>Investor meetings; demand testing into the fixed $135</small></div></div>
+      <div class="tev hot"><div class="d">11 JUN 26</div><div class="dot"><span></span></div><div class="lbl"><b>Pricing</b><small>Final offer price the night before</small></div></div>
+      <div class="tev hot"><div class="d">12 JUN 26</div><div class="dot"><span></span></div><div class="lbl"><b>Expected first trade · SPCX</b><small>Unconfirmed; can slip on SEC comments or market conditions</small></div></div>
+      <div class="tev"><div class="d">~SEP 26</div><div class="dot"><span></span></div><div class="lbl"><b>First public earnings call</b><small>First GAAP scrutiny of AI burn vs. Starlink profit</small></div></div>
+      <div class="tev warn"><div class="d">SEP–DEC 26</div><div class="dot"><span></span></div><div class="lbl"><b>Lockup expiry (90–180d)</b><small>Largest potential insider-supply event; calendar it</small></div></div>
+    </div>
+  </div>
+
+  <!-- CAP TABLE -->
+  <h2 class="rise"><span class="num">03 /</span> Cap Table & Key Holders</h2>
+  <p class="lead">Concentrated control is the structural headline: public buyers get economics, not a vote. Several holders are themselves liquid proxies.</p>
+  <div class="scrollx rise">
+  <table class="tbl">
+    <tr><th>Holder</th><th>Stake / detail</th><th>Why it matters to you</th></tr>
+    <tr><td>Elon Musk</td><td class="num-c">~42% eq · ~85% vote</td><td>Super-voting class. Can approve M&A, comp, raises unilaterally — incl. the rumored Tesla/xAI/X "amalgamation."</td></tr>
+    <tr><td>Alphabet (GOOGL)</td><td class="num-c">~$64B est. at $1.75T</td><td>2015 stake; ~64× return. Liquid, listed proxy on a marked-up gain.</td></tr>
+    <tr><td>Tesla (TSLA)</td><td class="num-c">~19M sh · ~$3.7B</td><td>Via $2B xAI convert. Cross-holding ties the two tapes together — see §06.</td></tr>
+    <tr><td>EchoStar (SATS)</td><td class="num-c">7.96M sh · ~$11B</td><td>Spectrum-for-equity deal; listed name with direct SPCX upside.</td></tr>
+    <tr><td>Fidelity Contrafund</td><td class="num-c">~$2.7B</td><td>Largest indirect retail-accessible vehicle (via most 401(k)s).</td></tr>
+  </table>
+  </div>
+
+  <!-- FINANCIALS / SEGMENTS -->
+  <h2 class="rise"><span class="num">04 /</span> Segment Economics — the bull/bear split</h2>
+  <div class="twocol rise">
+    <div class="callout" style="border-color:rgba(63,185,80,.3);background:rgba(63,185,80,.05)">
+      <h3 style="color:var(--grn)">▲ The Bull Engine — Starlink</h3>
+      <ul>
+        <li><b>$11.4B</b> FY25 revenue = <b>61%</b> of total</li>
+        <li><b>$4.4B</b> operating profit — only segment green on GAAP</li>
+        <li><b>~10M</b> subscribers (5M → 10M in early 2026)</li>
+        <li style="color:var(--amber)">ARPU <b>−18% to ~$81/mo</b> — growth via cheaper plans = margin watch-point</li>
+      </ul>
+    </div>
+    <div class="callout" style="border-color:rgba(248,81,73,.3);background:rgba(248,81,73,.05)">
+      <h3 style="color:var(--red)">▼ The Cash Drain — AI / xAI</h3>
+      <ul>
+        <li>xAI losses <b>&gt;$6B in 2025</b>, <b>$2.5B in Q1'26</b> alone</li>
+        <li>Q1'26 total net loss <b>−$4.28B</b> in a single quarter</li>
+        <li>Colossus data centre: capital-intensive, GPU-heavy</li>
+        <li style="color:var(--amber)">Co. reportedly weighing in-house GPU mfg to cut cost</li>
+      </ul>
+    </div>
+  </div>
+  <p class="lead" style="margin-top:12px">Launch is profitable but small vs. Starlink; the consolidated GAAP loss is essentially <b>Starlink profit minus AI burn minus heavy non-cash D&A/SBC</b>. The whole valuation narrative rests on Starlink holding margin while AI losses stabilise.</p>
+
+  <!-- RISK FACTORS -->
+  <h2 class="rise"><span class="num">05 /</span> Risk Factors — the six that move price</h2>
+  <p class="lead">The S-1 carries ~47 pages of risk factors. Severity tags are my read, not the filing's.</p>
+  <div class="risks rise">
+    <div class="risk hi"><div class="rt">AI cash burn <span class="tag hi">HIGH</span></div><div class="rb">~$2.5B/qtr; ~$10B 2026 pace. If burn doesn't stabilise, it can swamp Starlink's profit.</div></div>
+    <div class="risk hi"><div class="rt">Valuation compression <span class="tag hi">HIGH</span></div><div class="rb">~94–110× sales on GAAP losses. Zero margin for error — multiple can contract violently on any miss.</div></div>
+    <div class="risk hi"><div class="rt">Lockup supply shock <span class="tag hi">HIGH</span></div><div class="rb">Sep–Dec '26. Employees, VCs, syndicate all eligible to sell into the same window.</div></div>
+    <div class="risk med"><div class="rt">Government dependency <span class="tag med">MED</span></div><div class="rb">~$5.9B FY25 from US gov (NASA/DoD/intel). Policy or contracting shifts hit revenue directly.</div></div>
+    <div class="risk med"><div class="rt">Starship execution <span class="tag med">MED</span></div><div class="rb">Flight 12 due ~June '26. A failure during roadshow craters sentiment at the worst moment.</div></div>
+    <div class="risk med"><div class="rt">China / state competition <span class="tag med">MED</span></div><div class="rb">Long March family is subsidised and doesn't need profit — structural pricing pressure on launch.</div></div>
+  </div>
+
+  <!-- TRADE STRUCTURE -->
+  <h2 class="rise"><span class="num">06 /</span> Ways to Express It</h2>
+  <p class="lead">Direct allocation needs an underwriter PWM account (~$10M+). Below are the realistic routes and their specific traps.</p>
+  <div class="scrollx rise">
+  <table class="tbl">
+    <tr><th>Vehicle</th><th>Exposure</th><th>Access</th><th>The catch</th></tr>
+    <tr><td>SPCX at IPO</td><td class="num-c">Direct</td><td>Robinhood / Fidelity / Schwab retail tranches</td><td>Demand ≫ supply; you'll get a sliver. Chasing the day-1 pop is where retail loses.</td></tr>
+    <tr><td>Baron Partners (BPTRX)</td><td class="num-c">~13%</td><td>Mutual fund</td><td>Cleanest listed pure-play, but a fund wrapper — diluted, fees.</td></tr>
+    <tr><td>ARK Venture (ARKVX)</td><td class="num-c">~11–16%</td><td>Interval fund</td><td>Monthly NAV, limited liquidity/redemptions.</td></tr>
+    <tr><td>Destiny Tech100 (DXYZ)</td><td class="num-c">~5%</td><td>Public stock</td><td><span class="tag hi">TRAP</span> Has traded ~50% premium to NAV. You overpay for the wrapper, not the asset.</td></tr>
+    <tr><td>Fidelity Contrafund</td><td class="num-c">~2% (~$2.7B)</td><td>401(k) / fund</td><td>Tiny relative exposure; SPCX won't move the fund much.</td></tr>
+    <tr><td>Forge / Hiive (secondary)</td><td class="num-c">Direct pre-IPO</td><td>Accredited only</td><td>Quotes ranged ~$420–674 — <b>verify pre- vs post-split</b> ($420 pre = $84 post).</td></tr>
+    <tr><td>GOOGL / SATS / TSLA</td><td class="num-c">Embedded stake</td><td>Public stock</td><td>Diluted read-through; moves on much more than SPCX.</td></tr>
+    <tr><td>Supply chain (KTOS, TRMB, GRMN, AJRD)</td><td class="num-c">Indirect</td><td>Public stock</td><td>Second-derivative; weak correlation to the listing itself.</td></tr>
+  </table>
+  </div>
+
+  <div class="callout rise" style="margin-top:14px">
+    <h3>The TSLA correlation pattern <span class="tag flag" style="margin-left:6px">SINGLE-SOURCE BACKTEST</span></h3>
+    <ul>
+      <li><b>IPO milestones tend to be NEGATIVE for TSLA</b> (~−4.2% / 10d avg) — capital diversion: Musk-bull dollars split toward SPCX. The 12 Jun listing carries the same risk.</li>
+      <li><b>"Synergy" disclosures are POSITIVE</b> (~+6.1% / 10d) — cross-sales / shared infra reads as "one economic organism."</li>
+      <li><b>Starship successes are a non-event / slightly negative</b> (~−1.3%) — priced in; failure is the tail risk.</li>
+      <li>Caveat: n=16 events from one crypto-exchange writeup. Directionally interesting, <b>not</b> a validated edge. Verify before sizing.</li>
+    </ul>
+  </div>
+
+  <!-- VERIFY -->
+  <h2 class="rise"><span class="num">07 /</span> Treat-Skeptically / Verify Before Acting</h2>
+  <div class="scrollx rise">
+  <table class="tbl">
+    <tr><th>Claim</th><th>Status</th><th>Note</th></tr>
+    <tr><td>$135 fixed price · ~$1.77T · $75B raise</td><td><span class="tag med">SET, NOT FINAL</span></td><td>Reuters/CNBC; fixed pre-roadshow. Final only at the 11 Jun pricing notice (424B).</td></tr>
+    <tr><td>12 Jun 2026 listing</td><td><span class="tag med">SCHEDULED</span></td><td>Roadshow underway; price 11 Jun, trade 12 Jun. Can still slip on SEC/market.</td></tr>
+    <tr><td>Q1'26 −$4.28B loss · $41.3B deficit · segment splits</td><td><span class="tag flag">SINGLE-SOURCE</span></td><td>From one secondary S-1 breakdown. Confirm against the actual EDGAR filing.</td></tr>
+    <tr><td>Anthropic $1.25B/mo data deal (Colossus)</td><td><span class="tag lo">CONFIRMED</span></td><td>Now disclosed in SpaceX's prospectus (per CNBC): ~$1.25B/mo through May 2029. Earlier flagged dubious — it is real.</td></tr>
+    <tr><td>Cursor $10B deal + $60B option</td><td><span class="tag flag">SINGLE-SOURCE</span></td><td>Material if true; verify in filing before treating as a driver.</td></tr>
+    <tr><td>Exact lockup length</td><td><span class="tag med">NOT DISCLOSED</span></td><td>90–180d is the convention, not a stated term. Confirm in final prospectus.</td></tr>
+  </table>
+  </div>
+
+  <footer class="rise">
+    <div class="mono">SOURCE OF TRUTH → SEC EDGAR (search issuer "Space Exploration Technologies" / ticker SPCX) + the 424B final prospectus once priced. Everything above is reported/secondary as of 5 Jun 2026 and should be checked against the filing.</div>
+    <div style="margin-top:8px">Compiled from Reuters, Bloomberg, CNBC, Investing.com and a BitMEX S-1 breakdown. Figures are reporting, not company-confirmed unless noted. Granular Q1/segment/deal figures derive from a single secondary source with a promotional slant — flagged in §07. Per your note: you know the scam landscape and that I'm not your financial advisor — this is a reference sheet, not a recommendation.</div>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mega-IPO Catalyst Calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#06080d;--panel:#0d121c;--panel2:#111826;--line:#1d2636;
+    --txt:#e6edf3;--mut:#8593a6;--dim:#566079;
+    --spcx:#ffb000;--oai:#2dd4bf;--anth:#a78bfa;--red:#f85149;--grn:#3fb950;--blu:#58a6ff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--txt);font-family:'IBM Plex Sans',sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;
+    background-image:linear-gradient(rgba(120,140,180,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(120,140,180,.02) 1px,transparent 1px);background-size:46px 46px}
+  .wrap{max-width:1080px;margin:0 auto;padding:24px 18px 70px}
+  .mono{font-family:'IBM Plex Mono',monospace}
+
+  .head{border:1px solid var(--line);background:linear-gradient(150deg,var(--panel),#080b12);border-radius:11px;padding:20px}
+  .kicker{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:3px;color:var(--dim);text-transform:uppercase}
+  h1{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:700;letter-spacing:.5px;margin:8px 0 5px;
+    background:linear-gradient(90deg,var(--spcx),var(--oai) 55%,var(--anth));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{color:var(--mut);font-size:14px}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:15px;font-family:'IBM Plex Mono',monospace;font-size:12px}
+  .lg{display:flex;align-items:center;gap:6px;color:var(--mut)}
+  .sw{width:12px;height:12px;border-radius:3px;flex:none}
+  .sw.s{background:var(--spcx)}.sw.o{background:var(--oai)}.sw.a{background:var(--anth)}
+  .stnote{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);margin-top:9px}
+
+  .changed{border:1px solid rgba(63,185,80,.3);background:rgba(63,185,80,.05);border-radius:10px;padding:14px 16px;margin-top:14px}
+  .changed h3{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:2px;color:var(--grn);text-transform:uppercase;margin-bottom:9px}
+  .changed ul{list-style:none;font-size:13.5px;color:var(--mut)}
+  .changed li{padding:4px 0 4px 18px;position:relative}
+  .changed li::before{content:"▸";position:absolute;left:0;color:var(--grn)}
+  .changed b{color:var(--txt);font-weight:600}
+
+  h2{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:3px;color:var(--mut);text-transform:uppercase;margin:30px 0 12px;display:flex;align-items:center;gap:10px}
+  h2::before{content:"";width:7px;height:7px;background:var(--mut);transform:rotate(45deg);flex:none}
+
+  /* calendar */
+  .month{border:1px solid var(--line);background:var(--panel);border-radius:11px;overflow:hidden}
+  .month.lg{margin-bottom:14px}
+  .minis{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+  .mhead{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;letter-spacing:1px;padding:12px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;background:var(--panel2)}
+  .month.collision .mhead{background:linear-gradient(90deg,rgba(248,81,73,.10),var(--panel2))}
+  .ctag{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1px;color:var(--red);border:1px solid rgba(248,81,73,.4);background:rgba(248,81,73,.08);padding:2px 7px;border-radius:4px}
+  .wd{display:grid;grid-template-columns:repeat(7,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
+  .wd span{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);text-align:center;padding:5px 0;letter-spacing:1px}
+  .days{display:grid;grid-template-columns:repeat(7,1fr)}
+  .day{border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-height:42px;padding:3px 4px 5px;position:relative}
+  .day:nth-child(7n){border-right:none}
+  .day.empty{background:repeating-linear-gradient(45deg,transparent,transparent 6px,rgba(120,140,180,.03) 6px,rgba(120,140,180,.03) 12px)}
+  .day .dn{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--dim);display:block;text-align:right;padding-right:1px}
+  .day.today{background:rgba(255,176,0,.06);box-shadow:inset 0 0 0 2px rgba(255,176,0,.55)}
+  .day.today .dn{color:var(--spcx);font-weight:700}
+  .month.lg .day{min-height:78px}
+
+  .chip{display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;line-height:1.25;margin-top:3px;padding:2px 5px;border-radius:4px;border-left:3px solid;white-space:normal}
+  .chip.spcx{background:rgba(255,176,0,.12);border-left-color:var(--spcx);color:#ffd98a}
+  .chip.oai{background:rgba(45,212,191,.12);border-left-color:var(--oai);color:#9af2e6}
+  .chip.anth{background:rgba(167,139,250,.12);border-left-color:var(--anth);color:#d6c8ff}
+  .chip.tg{border-style:dashed;border-left-style:solid;opacity:.92}
+  .chip.rk{background:rgba(248,81,73,.10);border-left-color:var(--red);color:#ffb3ae}
+  .chip.star{box-shadow:0 0 8px rgba(255,176,0,.4);font-weight:700}
+
+  .fuzzy{padding:9px 12px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:6px;background:rgba(120,140,180,.02)}
+  .fchip{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 7px;border-radius:5px;border:1px dashed;white-space:nowrap}
+  .fchip.spcx{border-color:rgba(255,176,0,.5);color:#ffd98a;background:rgba(255,176,0,.06)}
+  .fchip.oai{border-color:rgba(45,212,191,.5);color:#9af2e6;background:rgba(45,212,191,.06)}
+  .fchip.anth{border-color:rgba(167,139,250,.5);color:#d6c8ff;background:rgba(167,139,250,.06)}
+  .fchip.rk{border-color:rgba(248,81,73,.5);color:#ffb3ae;background:rgba(248,81,73,.06)}
+  .mnote{padding:8px 12px;font-size:11px;color:var(--dim);border-top:1px solid var(--line)}
+
+  .zone{border:1px dashed rgba(248,81,73,.45);background:linear-gradient(180deg,rgba(248,81,73,.07),rgba(248,81,73,.02));border-radius:10px;padding:14px 16px;margin-top:14px}
+  .zone .zt{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:2px;color:var(--red);text-transform:uppercase}
+  .zone p{font-size:13px;color:var(--mut);margin-top:7px}
+  .zone b{color:var(--txt)}
+
+  .macro{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--dim);border:1px solid var(--line);border-radius:8px;padding:10px 13px;margin-top:14px;background:var(--panel)}
+  .macro b{color:var(--mut)}
+
+  .nav{display:flex;align-items:center;gap:8px;margin-bottom:16px;font-family:'IBM Plex Mono',monospace;flex-wrap:wrap}
+  .navbrand{font-size:11px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-right:4px}
+  .navlink{font-size:13px;letter-spacing:.5px;padding:7px 14px;border-radius:8px;border:1px solid var(--line);color:var(--mut);text-decoration:none;background:var(--panel)}
+  .navlink:hover{color:var(--txt);border-color:var(--dim)}
+  .navlink.active{color:#04101f;background:var(--blu);border-color:var(--blu);font-weight:700}
+  footer{margin-top:28px;border-top:1px solid var(--line);padding-top:16px;font-size:11.5px;color:var(--dim)}
+  footer .mono{color:var(--mut)}
+  @media print{body{background:#fff;color:#000;background-image:none}.month,.head,.zone,.changed{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="nav">
+    <span class="navbrand">IPO Watch</span>
+    <a class="navlink" href="index.html">Dashboard</a>
+    <a class="navlink active">Calendar</a>
+    <a class="navlink" href="SPCX_S1_Briefing.html">SpaceX S-1</a>
+    <a class="navlink" href="OpenAI_S1_Briefing.html">OpenAI S-1</a>
+    <a class="navlink" href="Anthropic_S1_Briefing.html">Anthropic S-1</a>
+  </div>
+
+  <div class="head">
+    <div class="kicker">Catalyst Calendar · updated 05 Jun 2026</div>
+    <h1>SPCX · Anthropic · OpenAI — Mega-IPO Calendar</h1>
+    <div class="sub">SpaceX $135 fixed / ~$1.77T · Anthropic confidential filing (≈$965B) · OpenAI filing imminent (≈$852B, Q4 target)</div>
+    <div class="legend">
+      <div class="lg"><span class="sw s"></span>SpaceX (SPCX)</div>
+      <div class="lg"><span class="sw o"></span>OpenAI</div>
+      <div class="lg"><span class="sw a"></span>Anthropic</div>
+    </div>
+    <div class="stnote">Solid chip = confirmed/expected · dashed chip = target (date TBD) · red = supply/risk · ★ = key node. Outlined cell = today.</div>
+  </div>
+
+  <div class="changed">
+    <h3>◆ What changed this week</h3>
+    <ul>
+      <li><b>Anthropic leapfrogged OpenAI:</b> confidentially filed its IPO prospectus on <b>Jun 1</b> — first of the AI pair. Debut targeted "as soon as this fall." Shares/price not set.</li>
+      <li><b>Anthropic re-rated up:</b> closed a <b>$65B</b> round at a <b>~$965B</b> valuation (now above OpenAI's $852B); revenue run-rate ~$47B (early May).</li>
+      <li><b>SpaceX set a fixed price</b> before the roadshow: <b>$135/share</b>, ~555.6M shares, <b>$75B raise</b>, ~$1.77T — roadshow began Jun 4, price Jun 11, debut Jun 12 on Nasdaq + Nasdaq Texas.</li>
+      <li><b>OpenAI still hasn't filed</b> — readying its confidential prospectus "in the coming days/weeks"; Q4 2026 target, last at $852B.</li>
+    </ul>
+  </div>
+
+  <h2>The live month</h2>
+  <div id="bigcal"></div>
+
+  <h2>Downstream — targets &amp; windows</h2>
+  <div class="minis" id="minical"></div>
+
+  <div class="zone">
+    <div class="zt">◆ Collision Window — Sep–Nov 2026</div>
+    <p>The fall is where it stacks: <b>SpaceX's lockup unlock</b> (≈90–180d after the Jun 12 debut), <b>Anthropic's target debut</b>, and <b>OpenAI's Q4 window</b> all overlap, with overlapping bank syndicates. Concurrent issuance competes for the same dollars and a weak debut from one can sour the bid for the next. Base case if it crowds: a slip — most likely OpenAI into Q1'27.</p>
+  </div>
+
+  <div class="macro"><b>Market backdrop (Jun 4):</b> S&amp;P 500 &amp; Nasdaq-100 futures slipped after a Broadcom revenue miss pressured chips, with a shaky Israel–Lebanon ceasefire adding caution — i.e. the debuts are landing into a jumpy, headline-driven tape.</div>
+
+  <footer>
+    <div class="mono">SOURCE OF TRUTH → SEC EDGAR per issuer + each final prospectus/pricing notice. SpaceX is the only public filing; Anthropic &amp; OpenAI are confidential/forthcoming.</div>
+    <div style="margin-top:8px">Dates from Reuters, CNBC, Bloomberg, Investing.com, Motley Fool, TechCrunch (reported, 1–3 Jun 2026). Only the May/Jun-1 filings and SpaceX's Jun 4/11/12 schedule are firm; everything downstream is a reported target subject to SEC review and market conditions. Reference map, not a recommendation.</div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var WD=['S','M','T','W','T','F','S'];
+  function renderMonth(c){
+    var first=new Date(c.y,c.m-1,1).getDay();
+    var dim=new Date(c.y,c.m,0).getDate();
+    var h='<div class="month '+(c.size||'sm')+(c.collision?' collision':'')+'">';
+    h+='<div class="mhead">'+c.label+(c.collision?'<span class="ctag">COLLISION</span>':'')+'</div>';
+    h+='<div class="wd">'+WD.map(function(d){return '<span>'+d+'</span>';}).join('')+'</div>';
+    h+='<div class="days">';
+    for(var i=0;i<first;i++) h+='<div class="day empty"></div>';
+    for(var d=1;d<=dim;d++){
+      var evs=(c.events&&c.events[d])||[];
+      h+='<div class="day'+(c.today===d?' today':'')+'"><span class="dn">'+d+'</span>';
+      evs.forEach(function(e){ h+='<span class="chip '+e.co+' '+(e.st||'cf')+(e.star?' star':'')+'">'+e.txt+'</span>'; });
+      h+='</div>';
+    }
+    // pad trailing cells to complete the final week
+    var total=first+dim, rem=(7-(total%7))%7;
+    for(var j=0;j<rem;j++) h+='<div class="day empty"></div>';
+    h+='</div>';
+    if(c.fuzzy&&c.fuzzy.length){ h+='<div class="fuzzy">'; c.fuzzy.forEach(function(e){ h+='<span class="fchip '+e.co+' '+(e.st||'')+'">'+e.txt+'</span>'; }); h+='</div>'; }
+    if(c.note) h+='<div class="mnote">'+c.note+'</div>';
+    h+='</div>';
+    return h;
+  }
+
+  var june={ y:2026, m:6, label:'June 2026', size:'lg', today:5,
+    events:{
+      1:[{co:'spcx',txt:'S-1/A Amd. 1'},{co:'anth',txt:'Confidential IPO filing'}],
+      4:[{co:'spcx',txt:'Roadshow begins · $135 fixed'}],
+      8:[{co:'spcx',txt:'Investor meetings',st:'ex'}],
+      11:[{co:'spcx',txt:'Pricing',st:'ex'}],
+      12:[{co:'spcx',txt:'★ First trade · Nasdaq',st:'ex',star:true}]
+    },
+    fuzzy:[
+      {co:'oai',txt:'OpenAI confidential filing expected (TBD)'},
+      {co:'spcx',txt:'Starship Flight 12 (TBD)',st:'rk'}
+    ]
+  };
+
+  var minis=[
+    { y:2026, m:7, label:'July 2026',
+      fuzzy:[{co:'spcx',txt:'~ Nasdaq-100 fast-entry eligibility (15 trading days)'}] },
+    { y:2026, m:8, label:'August 2026',
+      fuzzy:[{co:'anth',txt:'Public prospectus ≥15d pre-roadshow'},{co:'oai',txt:'Public S-1 possible'}] },
+    { y:2026, m:9, label:'September 2026', collision:true,
+      fuzzy:[{co:'spcx',txt:'First public earnings'},{co:'spcx',txt:'Lockup window opens (~Sep)',st:'rk'},{co:'anth',txt:'Fall listing window'}] },
+    { y:2026, m:10, label:'October 2026', collision:true,
+      fuzzy:[{co:'anth',txt:'Target debut (fall)'},{co:'oai',txt:'Q4 window'}] },
+    { y:2026, m:11, label:'November 2026', collision:true,
+      fuzzy:[{co:'oai',txt:'Q4 listing window'},{co:'spcx',txt:'Lockup continues (~Dec end)',st:'rk'}] }
+  ];
+
+  document.getElementById('bigcal').innerHTML=renderMonth(june);
+  document.getElementById('minical').innerHTML=minis.map(renderMonth).join('');
+})();
+</script>
+</body>
+</html>

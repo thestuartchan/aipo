@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Decline-Risk Dashboard · Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#06080d;--panel:#0d121c;--panel2:#111826;--line:#1d2636;
+    --txt:#e6edf3;--mut:#8593a6;--dim:#566079;
+    --grn:#3fb950;--amber:#ffb000;--red:#f85149;--blu:#58a6ff;
+    --spcx:#ffb000;--oai:#2dd4bf;--anth:#a78bfa;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--txt);font-family:'IBM Plex Sans',sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;
+    background-image:linear-gradient(rgba(120,140,180,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(120,140,180,.02) 1px,transparent 1px);background-size:42px 42px}
+  .wrap{max-width:1020px;margin:0 auto;padding:22px 18px 70px}
+  .mono{font-family:'IBM Plex Mono',monospace}
+  .rise{opacity:0;transform:translateY(10px);animation:rise .5s ease forwards}
+  @keyframes rise{to{opacity:1;transform:translateY(0)}}
+
+  .head{border:1px solid var(--line);background:linear-gradient(150deg,var(--panel),#080b12);border-radius:10px;padding:18px}
+  .kicker{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:3px;color:var(--dim);text-transform:uppercase}
+  h1{font-family:'IBM Plex Mono',monospace;font-size:25px;font-weight:700;letter-spacing:.5px;margin:7px 0 6px}
+  .regime{display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap}
+  .gpill{font-family:'IBM Plex Mono',monospace;font-size:13px;padding:5px 11px;border-radius:6px;letter-spacing:.5px;font-weight:600;background:rgba(255,176,0,.13);color:var(--amber);border:1px solid rgba(255,176,0,.35)}
+  .regime .desc{font-size:14px;color:var(--mut);flex:1;min-width:220px}
+
+  /* control bar */
+  .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+  .bar input,.bar select{font-family:'IBM Plex Mono',monospace;font-size:13px;background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:6px 9px;border-radius:6px}
+  .bar input.key{flex:1;min-width:160px}
+  .btn{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;letter-spacing:.5px;background:var(--blu);color:#04101f;border:none;padding:7px 13px;border-radius:6px;cursor:pointer}
+  .btn.ghost{background:transparent;color:var(--mut);border:1px solid var(--line)}
+  .btn:active{transform:translateY(1px)}
+  .toggle{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--mut);display:flex;align-items:center;gap:5px;cursor:pointer}
+  .status{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dim);margin-left:auto}
+  .status b{color:var(--mut)}
+
+  h2{font-family:'IBM Plex Mono',monospace;font-size:14px;letter-spacing:3px;color:var(--mut);text-transform:uppercase;margin:28px 0 12px;display:flex;align-items:center;gap:10px}
+  h2::before{content:"";width:6px;height:6px;background:var(--mut);transform:rotate(45deg);flex:none}
+  h2 .num{color:var(--dim);font-weight:400}
+  .hint{font-size:14px;color:var(--dim);margin:-6px 0 12px}
+
+  /* badges */
+  .bdg{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;padding:1px 5px;border-radius:3px;vertical-align:middle;white-space:nowrap}
+  .bdg.live{background:rgba(63,185,80,.14);color:var(--grn);border:1px solid rgba(63,185,80,.35)}
+  .bdg.anchor{background:rgba(133,147,166,.10);color:var(--mut);border:1px solid var(--line)}
+  .bdg.stale{background:rgba(248,81,73,.12);color:var(--red);border:1px solid rgba(248,81,73,.3)}
+  .bdg.man{background:rgba(88,166,255,.10);color:var(--blu);border:1px solid rgba(88,166,255,.3)}
+
+  .gauges{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .g{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:13px 14px}
+  .g .grow{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .g .name{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.4px;color:var(--mut);text-transform:uppercase}
+  .g .now{font-family:'IBM Plex Mono',monospace;font-size:23px;font-weight:700}
+  .g .now.red{color:var(--red)}.g .now.amber{color:var(--amber)}.g .now.grn{color:var(--grn)}.g .now.blu{color:var(--blu)}
+  .g .chg{font-family:'IBM Plex Mono',monospace;font-size:12px;margin-left:6px}
+  .track{position:relative;height:6px;border-radius:4px;margin:10px 0 6px;background:linear-gradient(90deg,var(--grn),var(--amber) 55%,var(--red))}
+  .track .mk{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid #06080d;transform:translate(-50%,-50%);box-shadow:0 0 0 1.5px #fff}
+  .thr{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim)}
+  .thr .b{color:var(--grn)}.thr .x{color:var(--red)}
+  .g .read{font-size:13px;color:var(--mut);margin-top:7px}
+  .g .read b{color:var(--txt)}
+  [contenteditable]{outline:none;border-bottom:1px dotted var(--dim);cursor:text}
+  [contenteditable]:focus{border-bottom:1px solid var(--blu)}
+
+  /* hedge table */
+  .scrollx{overflow-x:auto}
+  .htbl{width:100%;border-collapse:collapse;border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:14px;min-width:680px}
+  .htbl th{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);text-align:left;padding:9px 11px;background:var(--panel2);border-bottom:1px solid var(--line)}
+  .htbl td{padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
+  .htbl tr:last-child td{border-bottom:none}
+  .htbl td.inst{color:var(--txt);font-weight:600;font-family:'IBM Plex Mono',monospace;white-space:nowrap}
+  .htbl td.px{font-family:'IBM Plex Mono',monospace;color:var(--txt);white-space:nowrap}
+  .ten{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.5px;padding:2px 6px;border-radius:4px;white-space:nowrap}
+  .ten.d{background:rgba(248,81,73,.12);color:var(--red);border:1px solid rgba(248,81,73,.3)}
+  .ten.w{background:rgba(255,176,0,.12);color:var(--amber);border:1px solid rgba(255,176,0,.3)}
+  .ten.m{background:rgba(63,185,80,.12);color:var(--grn);border:1px solid rgba(63,185,80,.3)}
+  .htbl .opt{color:var(--blu);font-size:11px;font-family:'IBM Plex Mono',monospace}
+
+  /* events */
+  .ev{border:1px solid var(--line);background:var(--panel);border-radius:9px;overflow:hidden;margin-bottom:9px;border-left:3px solid}
+  .ev.s{border-left-color:var(--spcx)}.ev.o{border-left-color:var(--oai)}.ev.a{border-left-color:var(--anth)}
+  .ev .eh{display:flex;justify-content:space-between;gap:8px;padding:11px 13px 6px;flex-wrap:wrap}
+  .ev .who{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700}
+  .ev.s .who{color:var(--spcx)}.ev.o .who{color:var(--oai)}.ev.a .who{color:var(--anth)}
+  .ev .when{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--mut)}
+  .trig{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line)}
+  .trig div{padding:9px 13px;font-size:14px}
+  .trig .bull{border-right:1px solid var(--line);color:var(--mut)}
+  .trig .bear{color:var(--mut)}
+  .trig .tlab{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;display:block;margin-bottom:3px}
+  .trig .bull .tlab{color:var(--grn)}.trig .bear .tlab{color:var(--red)}
+  .trig b{color:var(--txt)}
+
+  .ladder{border:1px solid var(--line);background:var(--panel);border-radius:9px;overflow:hidden}
+  .rung{display:grid;grid-template-columns:108px 1fr;border-bottom:1px solid var(--line)}
+  .rung:last-child{border-bottom:none}
+  .rung .lv{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;font-weight:700;padding:11px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center}
+  .rung.g1 .lv{background:rgba(63,185,80,.10);color:var(--grn)}
+  .rung.g2 .lv{background:rgba(255,176,0,.10);color:var(--amber)}
+  .rung.g3 .lv{background:rgba(248,81,73,.12);color:var(--red)}
+  .rung .body{padding:10px 13px;font-size:14px;color:var(--mut)}
+  .rung .body b{color:var(--txt)}
+
+  details.help{border:1px solid var(--line);background:var(--panel);border-radius:9px;margin-top:14px;padding:0}
+  details.help summary{cursor:pointer;padding:12px 14px;font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:1px;color:var(--blu);list-style:none}
+  details.help summary::-webkit-details-marker{display:none}
+  details.help summary::before{content:"▸ ";color:var(--blu)}
+  details.help[open] summary::before{content:"▾ "}
+  .helpbody{padding:0 14px 14px;font-size:14px;color:var(--mut)}
+  .helpbody code{font-family:'IBM Plex Mono',monospace;background:var(--panel2);padding:1px 5px;border-radius:4px;color:var(--txt);font-size:13px}
+  .helpbody ol{margin:8px 0 8px 18px}.helpbody li{margin:5px 0}
+  .symtbl{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  .symtbl td{padding:5px 7px;border-bottom:1px solid var(--line)}
+  .symtbl input{font-family:'IBM Plex Mono',monospace;font-size:13px;background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:3px 6px;border-radius:4px;width:130px}
+  .symtbl td:first-child{color:var(--mut);font-family:'IBM Plex Mono',monospace}
+
+  .calc-top{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-bottom:12px}
+  .calc-fld{display:flex;flex-direction:column;gap:4px}
+  .calc-fld label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--dim);text-transform:uppercase}
+  .calc-fld input{font-family:'IBM Plex Mono',monospace;font-size:18px;background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:7px 10px;border-radius:6px;width:120px}
+  .calc-budget{margin-left:auto;text-align:right}
+  .calc-budget .bl{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--dim);text-transform:uppercase}
+  .calc-budget .bv{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:700;color:var(--grn)}
+  .ctbl{width:100%;border-collapse:collapse;border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:14px;min-width:780px}
+  .ctbl th{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);text-align:left;padding:8px 9px;background:var(--panel2);border-bottom:1px solid var(--line)}
+  .ctbl td{padding:6px 9px;border-bottom:1px solid var(--line);color:var(--mut)}
+  .ctbl tr:last-child td{border-bottom:none}
+  .ctbl td.cl{color:var(--txt);font-weight:600;font-family:'IBM Plex Mono',monospace;white-space:nowrap}
+  .ctbl td.ct{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim)}
+  .ctbl input.ci{font-family:'IBM Plex Mono',monospace;font-size:13px;background:#0a0f18;border:1px solid var(--line);color:var(--txt);padding:4px 6px;border-radius:4px;width:60px}
+  .ctbl td.o{font-family:'IBM Plex Mono',monospace;color:var(--txt);white-space:nowrap}
+  .trk{width:100%;border-collapse:collapse;border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:14px;min-width:520px}
+  .trk th{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);text-align:left;padding:8px 11px;background:var(--panel2);border-bottom:1px solid var(--line)}
+  .trk td{padding:8px 11px;border-bottom:1px solid var(--line);color:var(--mut)}
+  .trk tr:last-child td{border-bottom:none}
+  .trk td.tk{color:var(--txt);font-weight:600;font-family:'IBM Plex Mono',monospace;white-space:nowrap}
+  .trk td.pxc{font-family:'IBM Plex Mono',monospace;color:var(--txt);text-align:right;white-space:nowrap}
+  .cgh{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:1.5px;padding:14px 0 7px;font-weight:700}
+  .cgh.s{color:var(--spcx)}.cgh.o{color:var(--oai)}.cgh.a{color:var(--anth)}.cgh.t{color:var(--mut)}.cgh.f{color:var(--blu)}
+  .tgtag{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;padding:2px 6px;border-radius:4px;white-space:nowrap}
+  .tg-conc{background:rgba(63,185,80,.14);color:var(--grn);border:1px solid rgba(63,185,80,.35)}
+  .tg-sens{background:rgba(255,176,0,.12);color:var(--amber);border:1px solid rgba(255,176,0,.3)}
+  .tg-dil{background:rgba(133,147,166,.10);color:var(--dim);border:1px solid var(--line)}
+  .tg-symp{background:rgba(88,166,255,.10);color:var(--blu);border:1px solid rgba(88,166,255,.3)}
+  .tg-theme{background:rgba(167,139,250,.10);color:var(--anth);border:1px solid rgba(167,139,250,.3)}
+  .tg-trap{background:rgba(248,81,73,.12);color:var(--red);border:1px solid rgba(248,81,73,.3)}
+  .leg{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px;font-size:13px;color:var(--mut)}
+  .track .tick{position:absolute;top:-3px;bottom:-3px;width:2px;background:rgba(230,237,243,.45);transform:translateX(-50%);border-radius:1px}
+  .track .tick.bull{background:rgba(63,185,80,.95)}
+  .track .tick.bear{background:rgba(248,81,73,.95)}
+  .tlabels{position:relative;height:13px;margin-top:3px}
+  .tlabels span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:'IBM Plex Mono',monospace;font-size:10px}
+  .tlabels .lb{color:var(--grn)}.tlabels .lx{color:var(--red)}
+  .grplabel{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;color:var(--dim);text-transform:uppercase}
+  .bdg.state{font-weight:700}
+  .bdg.s-bull{background:rgba(63,185,80,.16);color:var(--grn);border:1px solid rgba(63,185,80,.45)}
+  .bdg.s-neutral{background:rgba(255,176,0,.14);color:var(--amber);border:1px solid rgba(255,176,0,.4)}
+  .bdg.s-bear{background:rgba(248,81,73,.16);color:var(--red);border:1px solid rgba(248,81,73,.45)}
+  .track.rev{background:linear-gradient(90deg,var(--red),var(--amber) 45%,var(--grn))}
+  .rung{transition:opacity .2s, box-shadow .2s}
+  .rung.dimmed{opacity:.34}
+  .rung.active.g1{box-shadow:inset 0 0 0 2px rgba(63,185,80,.8)}
+  .rung.active.g2{box-shadow:inset 0 0 0 2px rgba(255,176,0,.85)}
+  .rung.active.g3{box-shadow:inset 0 0 0 2px rgba(248,81,73,.85)}
+  .autoflag{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;padding:2px 7px;border-radius:3px;font-weight:700;margin:0;display:inline-block}
+  .autoflag.g1{background:var(--grn);color:#04140a}.autoflag.g2{background:var(--amber);color:#1a1300}.autoflag.g3{background:var(--red);color:#1a0505}
+  .ideas{display:grid;grid-template-columns:1fr 1fr;border-top:1px dashed var(--line)}
+  .ideas div{padding:8px 13px;font-size:14px;color:var(--mut)}
+  .ideas .bull{border-right:1px solid var(--line)}
+  .ideas .tlab2{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;display:block;margin-bottom:3px;color:var(--blu)}
+  .ideas b{color:var(--txt)}
+  .ti{font-family:'IBM Plex Mono',monospace;font-size:13px;background:#0a0f18;border:1px solid var(--line);color:var(--txt);padding:3px 6px;border-radius:4px;width:54px}
+  .srcrow{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:2px 0 4px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--dim)}
+  .srcrow a{color:var(--blu);text-decoration:none}
+  .srcrow a:hover{text-decoration:underline}
+  .nav{display:flex;align-items:center;gap:8px;margin-bottom:16px;font-family:'IBM Plex Mono',monospace;flex-wrap:wrap}
+  .navbrand{font-size:11px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-right:4px}
+  .navlink{font-size:13px;letter-spacing:.5px;padding:7px 14px;border-radius:8px;border:1px solid var(--line);color:var(--mut);text-decoration:none;background:var(--panel)}
+  .navlink:hover{color:var(--txt);border-color:var(--dim)}
+  .navlink.active{color:#04101f;background:var(--blu);border-color:var(--blu);font-weight:700}
+  footer{margin-top:28px;border-top:1px solid var(--line);padding-top:15px;font-size:13px;color:var(--dim)}
+  footer .mono{color:var(--mut)}
+
+  @media (max-width:720px){.gauges{grid-template-columns:1fr}.trig{grid-template-columns:1fr}.trig .bull{border-right:none;border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="nav">
+    <span class="navbrand">IPO Watch</span>
+    <a class="navlink active">Dashboard</a>
+    <a class="navlink" href="MegaIPO_Catalyst_Calendar.html">Calendar</a>
+    <a class="navlink" href="SPCX_S1_Briefing.html">SpaceX S-1</a>
+    <a class="navlink" href="OpenAI_S1_Briefing.html">OpenAI S-1</a>
+    <a class="navlink" href="Anthropic_S1_Briefing.html">Anthropic S-1</a>
+  </div>
+
+  <div class="head rise">
+    <div class="kicker">Mega-IPO Decline-Risk Dashboard · v2 · live-capable</div>
+    <h1>Signals, hedges &amp; the levels that flip the read</h1>
+    <div class="regime">
+      <span class="gpill" id="regimePill">REGIME: CALM SURFACE / FRAGILE BASE</span>
+      <span class="desc">Live cells pull quotes once you add an API key below. Structural metrics stay manual (click to edit). Anchors as of 29 May 2026 until refreshed.</span>
+    </div>
+    <div class="bar">
+      <select id="provider" title="data provider">
+        <option value="twelvedata">Twelve Data</option>
+        <option value="finnhub">Finnhub</option>
+      </select>
+      <input class="key" id="apikey" type="password" placeholder="paste free API key — stays in your browser only">
+      <span class="status" id="status">status: <b>idle</b> · last: <b id="lastUpd">—</b></span>
+    </div>
+    <div class="bar" id="grpbar" style="border-top:none;padding-top:4px">
+      <span class="grplabel">refresh →</span>
+      <button class="btn ghost" data-refresh="macro">Macro</button>
+      <button class="btn ghost" data-refresh="hedges">Hedges</button>
+      <button class="btn ghost" data-refresh="spacex">SpaceX</button>
+      <button class="btn ghost" data-refresh="openai">OpenAI</button>
+      <button class="btn ghost" data-refresh="anthropic">Anthropic</button>
+      <button class="btn ghost" data-refresh="infra">Infra</button>
+      <button class="btn" data-refresh="all">↻ All (throttled)</button>
+      <label class="toggle"><input type="checkbox" id="autoChk"> auto-macro 60s</label>
+    </div>
+  </div>
+
+  <!-- MACRO GAUGES -->
+  <h2 class="rise"><span class="num">01 /</span> Macro Gauges</h2>
+  <div class="hint">LIVE = auto-pulled (ETF/index proxies). MANUAL = click the number to edit (these don't have a live feed). VIX is inverted: the spike is the signal, not the calm.</div>
+  <div class="gauges rise">
+
+    <div class="g" data-lo="10" data-hi="45" data-bull="30" data-bear="38" data-good="low">
+      <div class="grow"><span class="name">Shiller CAPE <span class="bdg man">MANUAL</span> <span class="bdg state s-neutral">···</span></span><span class="now" contenteditable data-store="cape">~39.8</span></div>
+      <div class="track"><span class="tick bull"></span><span class="tick bear"></span><span class="mk"></span></div>
+      <div class="tlabels"><span class="lb">30 fair</span><span class="lx">38 stretched</span></div>
+      <div class="read">2nd-priciest in history. At &gt;39, history shows <b>~−20% avg / 2yrs</b>.</div>
+    </div>
+
+    <div class="g" data-lo="50" data-hi="250" data-bull="120" data-bear="200" data-good="low">
+      <div class="grow"><span class="name">Buffett Indicator <span class="bdg man">MANUAL</span> <span class="bdg state s-neutral">···</span></span><span class="now" contenteditable data-store="buffett">~220%</span></div>
+      <div class="track"><span class="tick bull"></span><span class="tick bear"></span><span class="mk"></span></div>
+      <div class="tlabels"><span class="lb">120%</span><span class="lx">200%</span></div>
+      <div class="read">Near <b>double</b> the overvalued line; dwarfs dot-com (~150%).</div>
+    </div>
+
+    <div class="g" data-lo="20" data-hi="40" data-bull="28" data-bear="33" data-good="low">
+      <div class="grow"><span class="name">Top-10 Concentration <span class="bdg man">MANUAL</span> <span class="bdg state s-neutral">···</span></span><span class="now" contenteditable data-store="conc">&gt;35%</span></div>
+      <div class="track"><span class="tick bull"></span><span class="tick bear"></span><span class="mk"></span></div>
+      <div class="tlabels"><span class="lb">28%</span><span class="lx">33%</span></div>
+      <div class="read">"Diversification illusion" — the index <b>is</b> the AI trade.</div>
+    </div>
+
+    <div class="g" data-live="VIX" data-stress="1" data-lo="10" data-hi="40" data-bull="20" data-bear="30" data-good="low">
+      <div class="grow"><span class="name">VIX <span class="bdg anchor" data-feed="VIX">ANCHOR</span> <span class="bdg state s-neutral">···</span></span><span class="now"><span data-px="VIX">~15</span><span class="chg" data-chg="VIX"></span></span></div>
+      <div class="track"><span class="tick bull"></span><span class="tick bear"></span><span class="mk"></span></div>
+      <div class="tlabels"><span class="lb">20 calm</span><span class="lx">30 stress</span></div>
+      <div class="read">Inverted: low = <b>complacency</b>. The <b>spike through 25–30</b> is the confirmation.</div>
+    </div>
+
+    <div class="g" data-live="IWM" data-stress="1" data-mode="breadth" data-lo="200" data-hi="260" data-bull="999" data-bear="-999" data-good="high">
+      <div class="grow"><span class="name">Breadth · IWM vs SPY <span class="bdg anchor" data-feed="IWM">ANCHOR</span> <span class="bdg state s-neutral">···</span></span><span class="now"><span data-px="IWM">~229</span><span class="chg" data-chg="IWM"></span></span></div>
+      <div class="track"><span class="tick bull" style="left:35%"></span><span class="tick bear" style="left:70%"></span><span class="mk"></span></div>
+      <div class="tlabels"><span class="lb" style="left:35%">leading</span><span class="lx" style="left:70%">lagging</span></div>
+      <div class="read">State = IWM vs SPY day move. Small-caps <b>lagging</b> = narrow, fragile internals. <span class="bvs" style="color:var(--dim)"></span></div>
+    </div>
+
+    <div class="g track-rev-host" data-live="HYG" data-stress="1" data-lo="70" data-hi="86" data-bull="80" data-bear="75" data-good="high">
+      <div class="grow"><span class="name">HYG credit <span class="bdg anchor" data-feed="HYG">ANCHOR</span> <span class="bdg state s-neutral">···</span></span><span class="now"><span data-px="HYG">~79</span><span class="chg" data-chg="HYG"></span></span></div>
+      <div class="track rev"><span class="tick bull"></span><span class="tick bear"></span><span class="mk"></span></div>
+      <div class="tlabels"><span class="lb">$80 calm</span><span class="lx">$75 stress</span></div>
+      <div class="read">Tracks HYG <b>price</b> (free feeds don't give bps). Price falling ≈ spreads widening; ~$75 ≈ HY OAS &gt;500bps — the systemic tell.</div>
+    </div>
+
+    <div class="g" data-live="GLD" data-stress="1" data-lo="300" data-hi="480" data-bull="360" data-bear="440" data-good="low">
+      <div class="grow"><span class="name">Gold · GLD <span class="bdg anchor" data-feed="GLD">ANCHOR</span> <span class="bdg state s-neutral">···</span></span><span class="now"><span data-px="GLD">~415</span><span class="chg" data-chg="GLD"></span></span></div>
+      <div class="track"><span class="tick bull"></span><span class="tick bear"></span><span class="mk"></span></div>
+      <div class="tlabels"><span class="lb">$360</span><span class="lx">$440 surging</span></div>
+      <div class="read">Heavy safe-haven bid <b>alongside</b> record equities = quiet hedging under the calm.</div>
+    </div>
+
+    <div class="g" data-live="BNO" data-stress="1" data-lo="18" data-hi="40" data-bull="24" data-bear="33" data-good="low">
+      <div class="grow"><span class="name">Oil · BNO <span class="bdg anchor" data-feed="BNO">ANCHOR</span> <span class="bdg state s-neutral">···</span></span><span class="now"><span data-px="BNO">~28</span><span class="chg" data-chg="BNO"></span></span></div>
+      <div class="track"><span class="tick bull"></span><span class="tick bear"></span><span class="mk"></span></div>
+      <div class="tlabels"><span class="lb">$24</span><span class="lx">$33 spiking</span></div>
+      <div class="read">Tracks the BNO Brent ETF (~$24≈$70 Brent, ~$33≈$110). Spiking oil = inflation/rates pressure.</div>
+    </div>
+
+    <div class="g" data-lo="400" data-hi="1000" data-bull="600" data-bear="800" data-good="low">
+      <div class="grow"><span class="name">Hyperscaler Capex 26E <span class="bdg man">MANUAL</span> <span class="bdg state s-neutral">···</span></span><span class="now" contenteditable data-store="capex">~725</span></div>
+      <div class="track"><span class="tick bull"></span><span class="tick bear"></span><span class="mk"></span></div>
+      <div class="tlabels"><span class="lb">$600B</span><span class="lx">$800B</span></div>
+      <div class="read">Toward $785B / $1T in '27 ($B). The <b>"capex air pocket"</b> is the core bull-thesis risk.</div>
+    </div>
+
+    <div class="g" data-lo="0" data-hi="1.5" data-bull="0.6" data-bear="1.0" data-good="low">
+      <div class="grow"><span class="name">AI Circular Obligations <span class="bdg man">MANUAL</span> <span class="bdg state s-neutral">···</span></span><span class="now" contenteditable data-store="circ">1.15</span></div>
+      <div class="track"><span class="tick bull"></span><span class="tick bear"></span><span class="mk"></span></div>
+      <div class="tlabels"><span class="lb">$0.6T</span><span class="lx">$1.0T</span></div>
+      <div class="read">OpenAI compute commitments across Oracle/MSFT/AMZN ($T). Take-or-pay = mirage risk.</div>
+    </div>
+
+  </div>
+
+  <details class="help rise" id="thrPanel">
+    <summary>⚙ EDIT THRESHOLDS — tune bull/bear levels per gauge</summary>
+    <div class="helpbody">
+      <div style="margin-bottom:6px">Change any gauge's scale (lo/hi) or its bull/bear trigger levels. Bars, state tags and the escalation level recompute instantly and save in your browser. (Breadth uses IWM-vs-SPY, so its bull/bear cells don't apply.)</div>
+      <div id="thrBody"></div>
+    </div>
+  </details>
+
+  <div class="srcrow">Manual-gauge sources → <a href="https://www.multpl.com/shiller-pe" target="_blank" rel="noopener">Shiller CAPE ↗</a> · <a href="https://www.currentmarketvaluation.com/models/buffett-indicator.php" target="_blank" rel="noopener">Buffett Indicator ↗</a> · <a href="https://www.slickcharts.com/sp500" target="_blank" rel="noopener">Top-10 Concentration ↗</a></div>
+
+  <!-- LADDER -->
+  <h2 class="rise"><span class="num">02 /</span> Escalation Ladder — auto-lit from the stress gauges</h2>
+  <div class="hint" id="ladderAuto">Auto-level updates on refresh from the 5 stress gauges (VIX · breadth · credit · gold · oil). Valuation gauges set the backdrop; the stress gauges drive the level. The lit rung is the current read.</div>
+  <div class="ladder rise" id="ladder">
+    <div class="rung g1" data-level="g1"><div class="lv">GREEN<br>noise</div><div class="body"><b>0–1 stress gauges bearish.</b> CAPE/Buffett extreme for a while; a hot debut + VIX&lt;20 + tight credit = cycle intact. Stay long, trim into strength, hold reserve. Hedges: keep cheap, small.</div></div>
+    <div class="rung g2" data-level="g2"><div class="lv">AMBER<br>derisk</div><div class="body"><b>2–3 confirmations:</b> a debut pop fades AND VIX 20–25 AND IWM lagging AND gold/oil climbing. Cut beta, raise cash, put on QQQ/SOXX put spreads <b>before</b> the crowd.</div></div>
+    <div class="rung g3" data-level="g3"><div class="lv">RED<br>defend</div><div class="body"><b>Contagion combo (≥4 stress, or credit + VIX both bearish):</b> OpenAI below last mark OR a debut breaks issue price + <b>HYG breaking down / spreads &gt;450–500bps</b> + VIX&gt;30 + a circular-deal name (NVDA/Oracle/CoreWeave) misses. Marks-repudiation cascade — defensive, convexity (VIX) on.</div></div>
+  </div>
+
+  <!-- EVENT TRIGGERS -->
+  <h2 class="rise"><span class="num">03 /</span> Per-Debut Triggers</h2>
+  <div class="ev s rise">
+    <div class="eh"><span class="who">SPCX</span><span class="when">trade ~12 JUN · earnings ~SEP · lockup SEP–DEC</span></div>
+    <div class="trig"><div class="bull"><span class="tlab">▲ BULL</span>Prices in/above range, oversubscribed, <b>pop holds</b>, Starship clean → cycle extends.</div><div class="bear"><span class="tlab">▼ BEAR</span>Below range or <b>breaks issue price in days</b>, weak book → "top is in" read across risk assets.</div></div>
+    <div class="ideas"><div class="bull"><span class="tlab2">▲ BULL ideas</span><b>SPCX</b> allocation if you get it · <b>SATS</b> (real stake) · <b>RKLB/ASTS</b> sympathy (lower quality)</div><div class="bear"><span class="tlab2">▼ BEAR ideas</span>Fade the day-1 pop · <b>SQQQ / 7568</b> (Nasdaq inverse, tactical) · <b>QQQ put spread</b> to hold · <b>SOXX puts</b> on the semis read-through</div></div>
+  </div>
+  <div class="ev o rise">
+    <div class="eh"><span class="who">OpenAI</span><span class="when">public S-1 ~AUG · list ~SEP/Q4 · slip risk Q1'27</span></div>
+    <div class="trig"><div class="bull"><span class="tlab">▲ BULL</span>Lists at/above $852B toward $1T, strong book → private marks hold.</div><div class="bear"><span class="tlab">▼ BEAR</span><b>Prices below last private mark</b> or slips → repudiates marks everywhere; the pin.</div></div>
+    <div class="ideas"><div class="bull"><span class="tlab2">▲ BULL ideas</span><b>SFTBY</b> the concentrated proxy (into the run-up) · <b>ARM</b> · modest <b>MSFT</b></div><div class="bear"><span class="tlab2">▼ BEAR ideas</span><b>SQQQ / 7568</b> (Nasdaq inverse) + <b>7347</b> (Samsung/HBM −2x) tactical · <b>QQQ / SOXX put spreads</b> to hold · short <b>SFTBY</b> (leveraged) · <b>VIX call spread</b></div></div>
+  </div>
+  <div class="ev a rise">
+    <div class="eh"><span class="who">Anthropic</span><span class="when">~$50B round (Q2) · target IPO ~OCT (unconfirmed)</span></div>
+    <div class="trig"><div class="bull"><span class="tlab">▲ BULL</span>Files, round closes firm, strong enterprise margins → "real revenue" case.</div><div class="bear"><span class="tlab">▼ BEAR</span>Delays or <b>down round</b> → marks cracking even at the strongest name.</div></div>
+    <div class="ideas"><div class="bull"><span class="tlab2">▲ BULL ideas</span><b>AMZN / GOOGL</b> (diluted — expect modest) · broad <b>AI-infra basket</b> (AVGO/ORCL/VRT)</div><div class="bear"><span class="tlab2">▼ BEAR ideas</span><b>SQQQ / 7568</b> (Nasdaq inverse) tactical · <b>HYG puts</b> (credit) · broad <b>QQQ puts</b> · trim AI-infra longs. No clean single-name short exists.</div></div>
+  </div>
+
+  <!-- RUN-UP TRACKER -->
+  <h2 class="rise"><span class="num">04 /</span> Run-Up Tracker — adjacent names by IPO</h2>
+  <div class="leg">
+    <span class="tgtag tg-conc">CONCENTRATED</span> moves hard ·
+    <span class="tgtag tg-sens">SENSITIVE</span> small-cap stake ·
+    <span class="tgtag tg-dil">DILUTED</span> mega-cap, barely moves ·
+    <span class="tgtag tg-symp">SYMPATHY</span> no stake, narrative only ·
+    <span class="tgtag tg-theme">THEME</span> picks-and-shovels ·
+    <span class="tgtag tg-trap">TRAP</span> NAV premium
+  </div>
+  <div class="hint">Concentration tag = how much the IPO should actually move it. The only true high-beta proxy is SoftBank (OpenAI); the mega-caps are too diluted to react much and are the ones most prone to "sell the news."</div>
+
+  <div class="cgh s">▸ SPACEX (SPCX) — listing ~12 Jun</div>
+  <div class="scrollx rise"><table class="trk">
+    <tr><th>Ticker</th><th>Link / role</th><th>Read</th><th>Px · %</th></tr>
+    <tr><td class="tk">SFTBY*</td><td>indirect via xAI/AI sentiment</td><td><span class="tgtag tg-sens">SENSITIVE</span></td><td class="pxc"><span data-px="SFTBY">—</span> <span class="chg" data-chg="SFTBY"></span></td></tr>
+    <tr><td class="tk">TSLA</td><td>holds SpaceX/xAI shares + Musk proxy</td><td><span class="tgtag tg-dil">DILUTED</span> <span style="font-size:11px">↓tendency on milestones</span></td><td class="pxc"><span data-px="TSLA">—</span> <span class="chg" data-chg="TSLA"></span></td></tr>
+    <tr><td class="tk">GOOGL</td><td>2015 stake (~$64B @ $1.75T)</td><td><span class="tgtag tg-dil">DILUTED</span></td><td class="pxc"><span data-px="GOOGL">—</span> <span class="chg" data-chg="GOOGL"></span></td></tr>
+    <tr><td class="tk">SATS</td><td>~$11B spectrum-for-equity stake</td><td><span class="tgtag tg-sens">SENSITIVE</span></td><td class="pxc"><span data-px="SATS">—</span> <span class="chg" data-chg="SATS"></span></td></tr>
+    <tr><td class="tk">RKLB</td><td>Rocket Lab — no stake</td><td><span class="tgtag tg-symp">SYMPATHY</span></td><td class="pxc"><span data-px="RKLB">—</span> <span class="chg" data-chg="RKLB"></span></td></tr>
+    <tr><td class="tk">ASTS</td><td>AST SpaceMobile — no stake</td><td><span class="tgtag tg-symp">SYMPATHY</span></td><td class="pxc"><span data-px="ASTS">—</span> <span class="chg" data-chg="ASTS"></span></td></tr>
+  </table></div>
+
+  <div class="cgh o">▸ OPENAI — public S-1 ~Aug · list ~Q4</div>
+  <div class="scrollx rise"><table class="trk">
+    <tr><th>Ticker</th><th>Link / role</th><th>Read</th><th>Px · %</th></tr>
+    <tr><td class="tk">SFTBY*</td><td>~12% OpenAI + ~90% Arm</td><td><span class="tgtag tg-conc">CONCENTRATED ★</span></td><td class="pxc"><span data-px="SFTBY">—</span> <span class="chg" data-chg="SFTBY"></span></td></tr>
+    <tr><td class="tk">MSFT</td><td>~27% stake (largest holder)</td><td><span class="tgtag tg-dil">DILUTED</span></td><td class="pxc"><span data-px="MSFT">—</span> <span class="chg" data-chg="MSFT"></span></td></tr>
+    <tr><td class="tk">NVDA</td><td>~3.5% stake + chips</td><td><span class="tgtag tg-dil">DILUTED</span></td><td class="pxc"><span data-px="NVDA">—</span> <span class="chg" data-chg="NVDA"></span></td></tr>
+    <tr><td class="tk">AMZN</td><td>~4.7% stake + AWS</td><td><span class="tgtag tg-dil">DILUTED</span></td><td class="pxc"><span data-px="AMZN">—</span> <span class="chg" data-chg="AMZN"></span></td></tr>
+    <tr><td class="tk">ARM</td><td>indirect (SoftBank + compute)</td><td><span class="tgtag tg-sens">SENSITIVE</span></td><td class="pxc"><span data-px="ARM">—</span> <span class="chg" data-chg="ARM"></span></td></tr>
+  </table></div>
+
+  <div class="cgh a">▸ ANTHROPIC — target ~Oct (unconfirmed) · no pure-play exists</div>
+  <div class="scrollx rise"><table class="trk">
+    <tr><th>Ticker</th><th>Link / role</th><th>Read</th><th>Px · %</th></tr>
+    <tr><td class="tk">AMZN</td><td>major backer (up to ~$25B)</td><td><span class="tgtag tg-dil">DILUTED</span></td><td class="pxc"><span data-px="AMZN">—</span> <span class="chg" data-chg="AMZN"></span></td></tr>
+    <tr><td class="tk">GOOGL</td><td>backer (up to ~$40B committed)</td><td><span class="tgtag tg-dil">DILUTED</span></td><td class="pxc"><span data-px="GOOGL">—</span> <span class="chg" data-chg="GOOGL"></span></td></tr>
+    <tr><td class="tk">MSFT / NVDA</td><td>reportedly co-committed ~$15B</td><td><span class="tgtag tg-dil">DILUTED</span></td><td class="pxc"><span data-px="MSFT">—</span> <span class="chg" data-chg="MSFT"></span></td></tr>
+  </table></div>
+
+  <div class="cgh t">▸ AI INFRASTRUCTURE — picks &amp; shovels (pump on the whole theme)</div>
+  <div class="scrollx rise"><table class="trk">
+    <tr><th>Ticker</th><th>Role</th><th>Read</th><th>Px · %</th></tr>
+    <tr><td class="tk">AVGO</td><td>AI silicon</td><td><span class="tgtag tg-theme">THEME</span></td><td class="pxc"><span data-px="AVGO">—</span> <span class="chg" data-chg="AVGO"></span></td></tr>
+    <tr><td class="tk">TSM</td><td>foundry</td><td><span class="tgtag tg-theme">THEME</span></td><td class="pxc"><span data-px="TSM">—</span> <span class="chg" data-chg="TSM"></span></td></tr>
+    <tr><td class="tk">MU</td><td>HBM / memory</td><td><span class="tgtag tg-theme">THEME</span></td><td class="pxc"><span data-px="MU">—</span> <span class="chg" data-chg="MU"></span></td></tr>
+    <tr><td class="tk">ORCL</td><td>$300B OpenAI compute deal</td><td><span class="tgtag tg-theme">THEME</span></td><td class="pxc"><span data-px="ORCL">—</span> <span class="chg" data-chg="ORCL"></span></td></tr>
+    <tr><td class="tk">CRWV</td><td>data-center / GPU cloud</td><td><span class="tgtag tg-theme">THEME</span></td><td class="pxc"><span data-px="CRWV">—</span> <span class="chg" data-chg="CRWV"></span></td></tr>
+    <tr><td class="tk">VRT</td><td>cooling / power gear</td><td><span class="tgtag tg-theme">THEME</span></td><td class="pxc"><span data-px="VRT">—</span> <span class="chg" data-chg="VRT"></span></td></tr>
+    <tr><td class="tk">VST / CEG / TLN</td><td>power feeding data centers</td><td><span class="tgtag tg-theme">THEME</span></td><td class="pxc"><span data-px="VST">—</span> <span class="chg" data-chg="VST"></span></td></tr>
+    <tr><td class="tk">EQIX / DLR</td><td>data-center REITs</td><td><span class="tgtag tg-theme">THEME</span></td><td class="pxc"><span data-px="EQIX">—</span> <span class="chg" data-chg="EQIX"></span></td></tr>
+  </table></div>
+
+  <div class="cgh f">▸ PRE-IPO WRAPPERS — hold the private names directly</div>
+  <div class="scrollx rise"><table class="trk">
+    <tr><th>Ticker</th><th>Role</th><th>Read</th><th>Px · %</th></tr>
+    <tr><td class="tk">DXYZ</td><td>Destiny Tech100 — listed</td><td><span class="tgtag tg-trap">TRAP</span> premium to NAV</td><td class="pxc"><span data-px="DXYZ">—</span> <span class="chg" data-chg="DXYZ"></span></td></tr>
+    <tr><td class="tk">ARKVX</td><td>ARK Venture — interval fund</td><td><span class="tgtag tg-dil">NAV</span> no live feed</td><td class="pxc"><span contenteditable data-store="px_ARKVX">—</span></td></tr>
+    <tr><td class="tk">BPTRX</td><td>Baron Partners — mutual fund</td><td><span class="tgtag tg-dil">NAV</span> no live feed</td><td class="pxc"><span contenteditable data-store="px_BPTRX">—</span></td></tr>
+    <tr><td class="tk">FCNTX</td><td>Fidelity Contrafund — mutual fund</td><td><span class="tgtag tg-dil">NAV</span> no live feed</td><td class="pxc"><span contenteditable data-store="px_FCNTX">—</span></td></tr>
+  </table></div>
+
+  <div class="hint" style="margin-top:9px">* SoftBank: track the US ADR <b>SFTBY</b> (or 9984.T on Tokyo). The tracker adds ~25 symbols — on Twelve Data's 8/min free cap a full refresh throttles, so for this list prefer <b>Finnhub</b> (60/min, US equities). HK products (7568/7347/7515) and the NAV funds above won't resolve on free US feeds — click those cells to type values manually (they save in your browser).</div>
+
+  <!-- HEDGE MAP -->
+  <h2 class="rise"><span class="num">05 /</span> Hedge Map — instrument → trigger → tenor → live px</h2>
+  <div class="hint">TENOR colour = how long it survives: <span class="ten d" style="padding:0 5px">DAYS</span> daily-reset decay, tactical only · <span class="ten w" style="padding:0 5px">WEEKS</span> · <span class="ten m" style="padding:0 5px">MONTHS+</span>. Option lines track the <b>underlying</b> price (live option premiums aren't on free feeds).</div>
+  <div class="scrollx rise">
+  <table class="htbl">
+    <tr><th>Instrument</th><th>What it is</th><th>Pays off on (trigger)</th><th>Tenor</th><th>Decay / basis caveat</th><th>Px</th></tr>
+
+    <tr>
+      <td class="inst">SQQQ</td><td>−3× Nasdaq-100, daily</td>
+      <td>Nasdaq / megacap leg down — the core concentration trigger</td>
+      <td><span class="ten d">DAYS</span></td>
+      <td>−3× daily reset → heavy vol decay; not a hold</td>
+      <td class="px"><span data-px="SQQQ">—</span></td>
+    </tr>
+    <tr>
+      <td class="inst">7568.HK</td><td>−2× Nasdaq-100, daily (CSOP)</td>
+      <td>Same Nasdaq leg — in your Asia-hours / CSOP wrapper</td>
+      <td><span class="ten d">DAYS</span></td>
+      <td>−2× daily reset decay; HK liquidity + time-zone basis vs US close</td>
+      <td class="px"><span data-px="7568">—</span></td>
+    </tr>
+    <tr>
+      <td class="inst">7347.HK</td><td>−2× Samsung Elec, daily (CSOP)</td>
+      <td>AI-memory / semis selloff (thematic, single-stock)</td>
+      <td><span class="ten d">DAYS</span></td>
+      <td>Single-name idiosyncratic + KRW; −2× decay</td>
+      <td class="px"><span data-px="7347">—</span></td>
+    </tr>
+    <tr>
+      <td class="inst">7515.HK</td><td>−2× Nikkei 225, daily (CSOP)</td>
+      <td>Global risk-off / yen-carry unwind (2nd-derivative)</td>
+      <td><span class="ten d">DAYS</span></td>
+      <td>−2× decay + embedded HKD:JPY FX; futures roll</td>
+      <td class="px"><span data-px="7515">—</span></td>
+    </tr>
+    <tr>
+      <td class="inst">SOXS / SOXX <span class="opt">▸puts</span></td><td>−3× semis (SOXS) · or puts on SOXX</td>
+      <td>Semis epicentre (NVDA/AVGO) — most direct trigger</td>
+      <td><span class="ten d">DAYS</span> / <span class="ten w">WK</span></td>
+      <td>SOXS −3× decay; SOXX puts = defined premium, no path-decay</td>
+      <td class="px"><span data-px="SOXX">—</span></td>
+    </tr>
+    <tr>
+      <td class="inst">QQQ / SPY <span class="opt">▸put spread</span></td><td>Defined-risk put debit spread</td>
+      <td>Broad Nasdaq/S&P decline — the standing hedge across the window</td>
+      <td><span class="ten m">MONTHS</span></td>
+      <td>Theta decay only; pick expiry <b>past</b> the catalyst. Tracks underlying px →</td>
+      <td class="px"><span data-px="QQQ">—</span></td>
+    </tr>
+    <tr>
+      <td class="inst">VIX <span class="opt">▸call spread</span></td><td>Long-vol convexity (VXX tactical)</td>
+      <td>VIX spike through 25–30 (the vol trigger)</td>
+      <td><span class="ten w">WEEKS</span></td>
+      <td>VIX options priced off <b>futures</b> not spot, European; VXX bleeds via contango</td>
+      <td class="px"><span data-px="VIX">—</span></td>
+    </tr>
+    <tr>
+      <td class="inst">HYG <span class="opt">▸puts</span></td><td>Credit downside</td>
+      <td>HY spreads widening &gt;450–500bps (systemic RED tell)</td>
+      <td><span class="ten m">MONTHS</span></td>
+      <td>Thinner option chain; HYG px inverse to spreads</td>
+      <td class="px"><span data-px="HYG">—</span></td>
+    </tr>
+    <tr>
+      <td class="inst">GLD</td><td>Gold / tail diversifier</td>
+      <td>Risk-off + monetary stress (already bid)</td>
+      <td><span class="ten m">STRAT</span></td>
+      <td>Not a pure equity hedge; can correlate down in forced-liquidation events</td>
+      <td class="px"><span data-px="GLD">—</span></td>
+    </tr>
+    <tr>
+      <td class="inst">Cash / T-bills</td><td>Dry powder</td>
+      <td>Everything — optionality to buy the dip</td>
+      <td><span class="ten m">STRAT</span></td>
+      <td>Opportunity cost if the decline never comes</td>
+      <td class="px">—</td>
+    </tr>
+  </table>
+  </div>
+
+  <!-- SIZING CALCULATOR -->
+  <h2 class="rise"><span class="num">06 /</span> Hedge Sizing Calculator</h2>
+  <div class="hint">Sizes <b>defined-risk put/call debit spreads</b> as insurance. Set portfolio + budget, edit strikes &amp; estimated net debit per line (use your broker's live option quotes), then allocate $ per line. Contracts floor to whole numbers; max payoff is shown at expiry with the spread fully in-the-money. Blank short strike = single-leg long option ("open" payoff).</div>
+  <div class="calc-top rise">
+    <div class="calc-fld"><label>Portfolio value $</label><input id="pf" type="number" value="1000000"></div>
+    <div class="calc-fld"><label>Insurance budget %</label><input id="bp" type="number" value="2" step="0.1"></div>
+    <button class="btn ghost" id="splitBtn">÷ distribute evenly</button>
+    <button class="btn ghost" id="liveBtn">↪ use live underlyings</button>
+    <div class="calc-budget"><div class="bl">premium budget</div><div class="bv" id="budgetOut">$20,000</div></div>
+  </div>
+  <div class="scrollx rise">
+  <table class="ctbl" id="ctbl">
+    <tr><th>Line</th><th>Type</th><th>Underlying</th><th>Long K</th><th>Short K</th><th>Net debit</th><th>Allocate $</th><th>Contracts</th><th>Cost</th><th>Notional</th><th>Max payoff</th><th>B/E</th></tr>
+  </table>
+  </div>
+  <div class="hint" id="covOut" style="margin-top:9px"></div>
+
+  <div class="hint" style="margin-top:18px"><b style="color:var(--txt)">Daily inverse ETFs (shares, tactical)</b> — the DAYS-tenor instruments from the hedge map. Sized by <b>shares, not option contracts</b>: allocate $ ÷ price = shares. Price auto-fills with "↪ use live underlyings" above. Hold for the event window in days, not months (daily-reset decay).</div>
+  <div class="scrollx">
+  <table class="ctbl" id="etbl" style="min-width:560px">
+    <tr><th>Instrument</th><th>Type</th><th>Price</th><th>Allocate $</th><th>Shares</th><th>Notional</th></tr>
+  </table>
+  </div>
+  <div class="hint" id="etfOut" style="margin-top:9px"></div>
+
+  <!-- HELP -->
+  <details class="help rise">
+    <summary>SETUP — turn live data on (1 minute)</summary>
+    <div class="helpbody">
+      <ol>
+        <li>Get a free API key: <code>twelvedata.com</code> (broadest coverage) or <code>finnhub.io</code>.</li>
+        <li>Pick the provider in the dropdown, paste the key, hit <b>↻ Refresh</b>. The key is stored only in <i>your</i> browser (localStorage) and sent only to the provider.</li>
+        <li>LIVE cells turn green on success. Anything that fails keeps its anchor and flags <span class="bdg stale" style="font-size:10px">STALE</span> — then either fix the symbol below or click the number to type it manually.</li>
+      </ol>
+      <div style="font-size:14px;margin-top:6px">Coverage honesty: free tiers reliably cover <b>US ETFs</b> (SQQQ, QQQ, SPY, SOXX, HYG, GLD, BNO). <b>VIX</b>, <b>Brent</b> and <b>HK-listed</b> tickers (7568/7347/7515) vary by provider and may need a symbol tweak — edit them here:</div>
+      <table class="symtbl" id="symtbl"></table>
+      <div style="font-size:13px;color:var(--dim);margin-top:8px">Note: indices are tracked via ETF proxies (IWM≈Russell 2000, GLD≈gold, BNO≈Brent, HYG≈credit spreads) because those quote cleanly on free tiers. Option premiums are not auto-fetched — option lines track the underlying. Structural gauges (CAPE, Buffett, concentration, capex, obligations) have no live feed; click to edit.</div>
+      <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px">
+        <div style="margin-bottom:6px"><b style="color:var(--txt)">Auto-pull the manual macro gauges</b> (CAPE / Buffett / Concentration). These have no free quote API, so they need a small proxy that returns JSON like <code>{"cape":39.8,"buffett":220,"concentration":35}</code>. Deploy the Cloudflare Worker provided alongside this file, then paste its URL here:</div>
+        <div class="bar" style="border-top:none;padding-top:0">
+          <input class="key" id="macroUrl" type="text" placeholder="https://your-worker.workers.dev/macro" style="flex:1;min-width:200px">
+          <button class="btn" id="macroBtn">Pull macro</button>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <footer class="rise">
+    <div class="mono">LIVE = provider quote · ANCHOR = 29 May 2026 placeholder until refreshed · MANUAL = you maintain it. Thresholds are heuristics, not precise triggers.</div>
+    <div style="margin-top:7px">Hedge mapping &amp; thresholds are an analytical framework for your own monitoring — not a recommendation. Verify every symbol resolves on your provider before relying on a number.</div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  // ---- tracked symbols: key -> default provider symbol ----
+  var SYMS = {
+    VIX:  "VIX",
+    IWM:  "IWM",
+    HYG:  "HYG",
+    GLD:  "GLD",
+    BNO:  "BNO",
+    SQQQ: "SQQQ",
+    "7568": "7568:Hong Kong Stock Exchange",
+    "7347": "7347:Hong Kong Stock Exchange",
+    "7515": "7515:Hong Kong Stock Exchange",
+    SOXX: "SOXX",
+    QQQ:  "QQQ",
+    SPY:  "SPY",
+    NVDA: "NVDA",
+    MSFT: "MSFT", AMZN: "AMZN", GOOGL: "GOOGL", TSLA: "TSLA",
+    SATS: "SATS", RKLB: "RKLB", ASTS: "ASTS",
+    SFTBY:"SFTBY", ARM: "ARM",
+    AVGO: "AVGO", TSM: "TSM", MU: "MU",
+    ORCL: "ORCL", CRWV: "CRWV", VRT: "VRT",
+    VST: "VST", CEG: "CEG", TLN: "TLN", EQIX: "EQIX", DLR: "DLR",
+    DXYZ: "DXYZ"
+  };
+  var store = {
+    get: function(k){ try{return localStorage.getItem(k);}catch(e){return null;} },
+    set: function(k,v){ try{localStorage.setItem(k,v);}catch(e){} }
+  };
+  // restore key, provider, custom symbols, manual edits
+  var apikeyEl=document.getElementById('apikey'),
+      providerEl=document.getElementById('provider'),
+      statusEl=document.getElementById('status'),
+      lastEl=document.getElementById('lastUpd');
+  apikeyEl.value = store.get('drd_key')||'';
+  providerEl.value = store.get('drd_provider')||'twelvedata';
+  var custom={}; try{custom=JSON.parse(store.get('drd_syms')||'{}');}catch(e){}
+  Object.keys(custom).forEach(function(k){ if(SYMS[k]!==undefined) SYMS[k]=custom[k]; });
+  document.querySelectorAll('[data-store]').forEach(function(el){
+    var v=store.get('drd_m_'+el.getAttribute('data-store')); if(v!==null) el.textContent=v;
+    el.addEventListener('input',function(){ store.set('drd_m_'+el.getAttribute('data-store'), el.textContent); computeAll(); });
+  });
+  apikeyEl.addEventListener('change',function(){store.set('drd_key',apikeyEl.value);});
+  providerEl.addEventListener('change',function(){store.set('drd_provider',providerEl.value);});
+
+  // symbol editor table
+  var st=document.getElementById('symtbl');
+  Object.keys(SYMS).forEach(function(k){
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+k+'</td><td><input data-sym="'+k+'" value="'+SYMS[k]+'"></td>';
+    st.appendChild(tr);
+  });
+  st.addEventListener('change',function(e){
+    var t=e.target; if(t.tagName==='INPUT'){ var k=t.getAttribute('data-sym'); SYMS[k]=t.value.trim(); custom[k]=SYMS[k]; store.set('drd_syms',JSON.stringify(custom)); }
+  });
+
+  function setStatus(s){ statusEl.innerHTML='status: <b>'+s+'</b> · last: <b id="lastUpd">'+(lastEl.textContent||'—')+'</b>'; lastEl=document.getElementById('lastUpd'); }
+  function stamp(){ var d=new Date(); lastEl.textContent=d.toLocaleTimeString(); }
+
+  function applyQuote(key, price, pct){
+    window.__DRD_PX=window.__DRD_PX||{}; window.__DRD_PX[key]=price;
+    window.__DRD_DP=window.__DRD_DP||{}; window.__DRD_DP[key]=pct;
+    document.querySelectorAll('[data-px="'+key+'"]').forEach(function(el){
+      el.textContent = (price>=1000? price.toLocaleString(undefined,{maximumFractionDigits:0}) : price.toFixed(2));
+    });
+    document.querySelectorAll('[data-chg="'+key+'"]').forEach(function(el){
+      if(pct===null||isNaN(pct)){el.textContent='';return;}
+      el.textContent=(pct>=0?'+':'')+pct.toFixed(2)+'%';
+      el.style.color = pct>=0 ? 'var(--grn)' : 'var(--red)';
+    });
+    var b=document.querySelector('[data-feed="'+key+'"]');
+    if(b){ b.className='bdg live'; b.textContent='LIVE'; }
+    // dynamic VIX marker position
+    document.querySelectorAll('[data-dyn="'+key+'"]').forEach(function(mk){
+      var lo=+mk.getAttribute('data-lo'),hi=+mk.getAttribute('data-hi');
+      var p=Math.max(0,Math.min(100,(price-lo)/(hi-lo)*100)); mk.style.left=p+'%';
+    });
+  }
+  function markStale(key){ var b=document.querySelector('[data-feed="'+key+'"]'); if(b){b.className='bdg stale';b.textContent='STALE';} }
+
+  function fetchTwelve(keys){
+    var list=keys.map(function(k){return SYMS[k];}).join(',');
+    var url='https://api.twelvedata.com/quote?symbol='+encodeURIComponent(list)+'&apikey='+encodeURIComponent(apikeyEl.value);
+    return fetch(url).then(function(r){return r.json();}).then(function(j){
+      keys.forEach(function(k){
+        var row = (j[SYMS[k]]!==undefined)? j[SYMS[k]] : (keys.length===1? j : null);
+        if(row && row.close!==undefined && row.status!=='error'){
+          applyQuote(k, parseFloat(row.close), row.percent_change!==undefined?parseFloat(row.percent_change):null);
+        } else { markStale(k); }
+      });
+    });
+  }
+  function fetchFinnhub(keys){
+    // finnhub: one call per symbol (US symbols only on free tier)
+    return Promise.all(keys.map(function(k){
+      var url='https://finnhub.io/api/v1/quote?symbol='+encodeURIComponent(SYMS[k])+'&token='+encodeURIComponent(apikeyEl.value);
+      return fetch(url).then(function(r){return r.json();}).then(function(j){
+        if(j && typeof j.c==='number' && j.c>0){ applyQuote(k, j.c, typeof j.dp==='number'?j.dp:null); } else { markStale(k); }
+      }).catch(function(){markStale(k);});
+    }));
+  }
+  var GROUPS={
+    macro:['VIX','IWM','HYG','GLD','BNO'],
+    hedges:['SQQQ','7568','7347','7515','SOXX','QQQ','SPY','NVDA'],
+    spacex:['SFTBY','TSLA','GOOGL','SATS','RKLB','ASTS'],
+    openai:['SFTBY','MSFT','NVDA','AMZN','ARM'],
+    anthropic:['AMZN','GOOGL','MSFT','NVDA'],
+    infra:['AVGO','TSM','MU','ORCL','CRWV','VRT','VST','CEG','TLN','EQIX','DLR'],
+    wrappers:['DXYZ']
+  };
+  function provFetch(keys){ return providerEl.value==='finnhub'?fetchFinnhub(keys):fetchTwelve(keys); }
+  function refreshKeys(keys){
+    if(!apikeyEl.value){ setStatus('add an API key first'); return Promise.resolve(); }
+    setStatus('fetching '+keys.length+'…');
+    return provFetch(keys).then(function(){stamp();setStatus('updated '+keys.length);computeAll();})
+                          .catch(function(){setStatus('fetch error — check key/CORS');});
+  }
+  function uniqueAll(){ var s={}; Object.keys(GROUPS).forEach(function(g){GROUPS[g].forEach(function(k){s[k]=1;});}); return Object.keys(s); }
+  function refreshAllThrottled(){
+    if(!apikeyEl.value){ setStatus('add an API key first'); return; }
+    var keys=uniqueAll(), i=0, chunk=6;
+    (function next(){
+      if(i>=keys.length){ setStatus('updated all ('+keys.length+')'); return; }
+      var part=keys.slice(i,i+chunk); i+=chunk;
+      setStatus('fetching '+Math.min(i,keys.length)+'/'+keys.length+'…');
+      provFetch(part).then(function(){stamp();computeAll();setTimeout(next,1500);}).catch(function(){setTimeout(next,1500);});
+    })();
+  }
+  document.getElementById('grpbar').addEventListener('click',function(e){
+    var b=e.target.closest('[data-refresh]'); if(!b) return;
+    var g=b.getAttribute('data-refresh');
+    if(g==='all') refreshAllThrottled(); else refreshKeys(GROUPS[g]||[]);
+  });
+  var timer=null;
+  document.getElementById('autoChk').addEventListener('change',function(e){
+    if(e.target.checked){ refreshKeys(GROUPS.macro); timer=setInterval(function(){refreshKeys(GROUPS.macro);},60000); } else { clearInterval(timer); }
+  });
+
+  // ---- gauge state + escalation engine ----
+  function parseNum(t){ if(t==null) return NaN; return parseFloat((''+t).replace(/[,$~%<>]/g,'').trim()); }
+  function clampPos(v,lo,hi){ if(isNaN(v)) return 0; return Math.max(0,Math.min(100,(v-lo)/(hi-lo)*100)); }
+  function setStateTag(g,state){
+    var t=g.querySelector('.bdg.state');
+    if(t){ t.className='bdg state '+(state==='bull'?'s-bull':state==='bear'?'s-bear':'s-neutral');
+           t.textContent= state==='bull'?'BULL':state==='bear'?'BEAR':'NEUTRAL'; }
+    var now=g.querySelector('.now');
+    if(now){ now.style.color = state==='bull'?'var(--grn)':state==='bear'?'var(--red)':'var(--amber)'; }
+  }
+  function gaugeValue(g){ var el=g.querySelector('[data-px]')||g.querySelector('[data-store]'); return parseNum(el?el.textContent:''); }
+  function computeGauge(g){
+    var lo=+g.dataset.lo, hi=+g.dataset.hi, bull=+g.dataset.bull, bear=+g.dataset.bear, good=g.dataset.good;
+    var val=gaugeValue(g);
+    var tb=g.querySelector('.tick.bull'), tx=g.querySelector('.tick.bear'), mk=g.querySelector('.mk');
+    var lb=g.querySelector('.tlabels .lb'), lx=g.querySelector('.tlabels .lx');
+    if(g.dataset.mode!=='breadth'){
+      var pb=clampPos(bull,lo,hi)+'%', px=clampPos(bear,lo,hi)+'%';
+      if(tb)tb.style.left=pb; if(lb)lb.style.left=pb; if(tx)tx.style.left=px; if(lx)lx.style.left=px;
+    }
+    if(mk && !isNaN(val)) mk.style.left=clampPos(val,lo,hi)+'%';
+    var state='neutral';
+    if(g.dataset.mode==='breadth'){
+      var dp=window.__DRD_DP||{};
+      if(dp.IWM!=null && dp.SPY!=null && !isNaN(dp.IWM) && !isNaN(dp.SPY)){
+        var d=dp.IWM-dp.SPY; state = d>=0.25?'bull': d<=-0.25?'bear':'neutral';
+        var vs=g.querySelector('.bvs'); if(vs) vs.textContent=' · vs SPY today: '+(d>=0?'+':'')+d.toFixed(2)+'pp';
+      }
+    } else if(!isNaN(val)){
+      if(good==='low') state = val<=bull?'bull':(val>=bear?'bear':'neutral');
+      else             state = val>=bull?'bull':(val<=bear?'bear':'neutral');
+    }
+    g._state=state; setStateTag(g,state); return state;
+  }
+  function computeEscalation(){
+    var stress=document.querySelectorAll('.g[data-stress="1"]');
+    var bear=0, vixB=false, hygB=false;
+    stress.forEach(function(g){
+      if(g._state==='bear') bear++;
+      if(g.dataset.live==='VIX' && g._state==='bear') vixB=true;
+      if(g.dataset.live==='HYG' && g._state==='bear') hygB=true;
+    });
+    var level=(bear>=4||(vixB&&hygB))?'g3':(bear>=2?'g2':'g1');
+    document.querySelectorAll('#ladder .rung').forEach(function(r){
+      var on=r.getAttribute('data-level')===level;
+      r.classList.toggle('active',on); r.classList.toggle('dimmed',!on);
+      var old=r.querySelector('.autoflag'); if(old) old.remove();
+      if(on){ var f=document.createElement('span'); f.className='autoflag '+level; f.textContent='◄ NOW'; r.querySelector('.lv').appendChild(f); }
+    });
+    var pill=document.getElementById('regimePill');
+    if(pill){
+      var L={g1:'GREEN · cycle intact',g2:'AMBER · derisking',g3:'RED · defend'},
+          bg={g1:'rgba(63,185,80,.13)',g2:'rgba(255,176,0,.13)',g3:'rgba(248,81,73,.14)'},
+          bc={g1:'rgba(63,185,80,.35)',g2:'rgba(255,176,0,.35)',g3:'rgba(248,81,73,.4)'},
+          tc={g1:'var(--grn)',g2:'var(--amber)',g3:'var(--red)'};
+      pill.textContent='AUTO: '+L[level]+' · '+bear+'/5 stress bearish';
+      pill.style.background=bg[level]; pill.style.borderColor=bc[level]; pill.style.color=tc[level];
+    }
+  }
+  function restoreThr(){
+    document.querySelectorAll('.gauges .g').forEach(function(g,i){
+      var v=store.get('drd_thr_'+i); if(!v) return;
+      try{var o=JSON.parse(v);['lo','hi','bull','bear'].forEach(function(f){if(o[f]!=null&&o[f]!=='')g.dataset[f]=o[f];});}catch(e){}
+    });
+  }
+  function buildThrEditor(){
+    var body=document.getElementById('thrBody'); if(!body) return;
+    var gs=document.querySelectorAll('.gauges .g');
+    var h='<table class="symtbl"><tr><td>Gauge</td><td>lo</td><td>hi</td><td>bull</td><td>bear</td></tr>';
+    gs.forEach(function(g,i){
+      var nm=((g.querySelector('.name')||{}).childNodes?g.querySelector('.name').childNodes[0].textContent:'')||('Gauge '+(i+1));
+      function cell(f){return '<td><input class="ti" style="width:58px" data-f="'+f+'" value="'+g.dataset[f]+'"></td>';}
+      h+='<tr data-gi="'+i+'"><td>'+nm.trim()+'</td>'+cell('lo')+cell('hi')+cell('bull')+cell('bear')+'</tr>';
+    });
+    h+='</table>';
+    body.innerHTML=h;
+    body.addEventListener('change',function(e){
+      var inp=e.target.closest('input.ti'); if(!inp) return;
+      var tr=inp.closest('tr'), i=+tr.getAttribute('data-gi'), f=inp.getAttribute('data-f'), g=gs[i];
+      g.dataset[f]=inp.value;
+      store.set('drd_thr_'+i, JSON.stringify({lo:g.dataset.lo,hi:g.dataset.hi,bull:g.dataset.bull,bear:g.dataset.bear}));
+      computeAll();
+    });
+  }
+  function computeAll(){ document.querySelectorAll('.gauges .g').forEach(computeGauge); computeEscalation(); }
+  // ---- optional macro auto-pull (CAPE / Buffett / Concentration) via user proxy ----
+  var macroUrl=document.getElementById('macroUrl'), macroBtn=document.getElementById('macroBtn');
+  if(macroUrl){ macroUrl.value=store.get('drd_macrourl')||''; macroUrl.addEventListener('change',function(){store.set('drd_macrourl',macroUrl.value);}); }
+  function setManual(key,val){ var el=document.querySelector('[data-store="'+key+'"]'); if(el&&val!=null){ el.textContent=(''+val); store.set('drd_m_'+key,(''+val)); } }
+  function pullMacro(){
+    if(!macroUrl||!macroUrl.value){ setStatus('add a macro endpoint URL'); return; }
+    setStatus('fetching macro…');
+    fetch(macroUrl.value).then(function(r){return r.json();}).then(function(j){
+      if(j.cape!=null) setManual('cape', j.cape);
+      if(j.buffett!=null) setManual('buffett', j.buffett);
+      if(j.concentration!=null) setManual('conc', j.concentration);
+      computeAll(); stamp(); setStatus('macro updated');
+    }).catch(function(){ setStatus('macro fetch error — check endpoint/CORS'); });
+  }
+  if(macroBtn) macroBtn.addEventListener('click',pullMacro);
+
+  restoreThr(); buildThrEditor(); computeAll();
+})();
+</script>
+<script>
+(function(){
+  "use strict";
+  var rows=[
+    {k:'QQQ', type:'put',  u:600, L:570, S:510, d:10.00},
+    {k:'SPY', type:'put',  u:758, L:720, S:650, d:12.00},
+    {k:'SOXX',type:'put',  u:260, L:245, S:215, d:6.00},
+    {k:'NVDA',type:'put',  u:170, L:160, S:'',  d:7.00},
+    {k:'VIX', type:'call', u:15,  L:20,  S:30,  d:1.20},
+    {k:'HYG', type:'put',  u:79,  L:77,  S:72,  d:0.80}
+  ];
+  var labels={QQQ:'QQQ put spread',SPY:'SPY put spread',SOXX:'SOXX put spread',NVDA:'NVDA put',VIX:'VIX call spread',HYG:'HYG put'};
+  var tbl=document.getElementById('ctbl'); if(!tbl) return;
+  function num(v){v=parseFloat(v);return isNaN(v)?0:v;}
+  function money(n){return '$'+Math.round(n).toLocaleString();}
+  rows.forEach(function(r,i){
+    var tr=document.createElement('tr'); tr.setAttribute('data-i',i);
+    tr.innerHTML=
+      '<td class="cl">'+labels[r.k]+'</td>'+
+      '<td class="ct">'+r.type+'</td>'+
+      '<td><input class="ci u" type="number" value="'+r.u+'"></td>'+
+      '<td><input class="ci L" type="number" value="'+r.L+'"></td>'+
+      '<td><input class="ci S" type="number" value="'+r.S+'" placeholder="—"></td>'+
+      '<td><input class="ci d" type="number" step="0.05" value="'+r.d+'"></td>'+
+      '<td><input class="ci a" type="number" placeholder="0"></td>'+
+      '<td class="o oc">0</td><td class="o ocost">$0</td><td class="o onot">$0</td><td class="o opay">—</td><td class="o obe">—</td>';
+    tbl.appendChild(tr);
+  });
+  var pf=document.getElementById('pf'),bp=document.getElementById('bp'),
+      budgetOut=document.getElementById('budgetOut'),covOut=document.getElementById('covOut');
+  function budget(){return num(pf.value)*num(bp.value)/100;}
+  function recompute(){
+    var b=budget(); budgetOut.textContent=money(b);
+    var totCost=0,totNot=0;
+    tbl.querySelectorAll('tr[data-i]').forEach(function(tr){
+      var L=num(tr.querySelector('.L').value),
+          Sraw=tr.querySelector('.S').value,
+          S=parseFloat(Sraw),
+          d=num(tr.querySelector('.d').value),
+          a=num(tr.querySelector('.a').value),
+          type=tr.querySelector('.ct').textContent.toLowerCase();
+      var costPer=d*100;
+      var n=(a>0&&costPer>0)?Math.floor(a/costPer):0;
+      var cost=n*costPer, notional=L*100*n;
+      var isSpread=!isNaN(S)&&S>0;
+      var be=type==='put'?(L-d):(L+d);
+      var pay;
+      if(isSpread){ pay=money((Math.abs(L-S)-d)*100*n); }
+      else { pay = n>0 ? ('open→'+(type==='put'?'0':'∞')) : '—'; }
+      tr.querySelector('.oc').textContent=n;
+      tr.querySelector('.ocost').textContent=money(cost);
+      tr.querySelector('.onot').textContent=money(notional);
+      tr.querySelector('.opay').textContent=n>0?pay:'—';
+      tr.querySelector('.obe').textContent=n>0?be.toFixed(2):'—';
+      totCost+=cost; totNot+=notional;
+    });
+    var pfv=num(pf.value), rem=b-totCost;
+    covOut.innerHTML='Allocated <b style="color:var(--txt)">'+money(totCost)+'</b> of '+money(b)+
+      ' budget · remaining <b style="color:'+(rem<0?'var(--red)':'var(--grn)')+'">'+money(rem)+'</b>'+
+      ' · total notional hedged <b style="color:var(--txt)">'+money(totNot)+'</b>'+
+      (pfv>0?' (≈'+(totNot/pfv*100).toFixed(0)+'% of book)':'');
+  }
+  document.getElementById('splitBtn').addEventListener('click',function(){
+    var live=tbl.querySelectorAll('tr[data-i]'); if(!live.length)return;
+    var per=budget()/live.length;
+    live.forEach(function(tr){tr.querySelector('.a').value=Math.round(per);});
+    recompute();
+  });
+  // ---- daily inverse ETF (shares) sub-calculator ----
+  var etfRows=[
+    {k:'SQQQ', t:'−3× NDX'},
+    {k:'7568', t:'−2× NDX (HK)'},
+    {k:'7347', t:'−2× Samsung (HK)'},
+    {k:'7515', t:'−2× Nikkei (HK)'},
+    {k:'SOXS', t:'−3× semis'}
+  ];
+  var etbl=document.getElementById('etbl'), etfOut=document.getElementById('etfOut');
+  if(etbl){
+    etfRows.forEach(function(r,i){
+      var tr=document.createElement('tr'); tr.setAttribute('data-ei',i);
+      tr.innerHTML='<td class="cl">'+r.k+'</td><td class="ct">'+r.t+'</td>'+
+        '<td><input class="ci ep" type="number" step="0.01" placeholder="—"></td>'+
+        '<td><input class="ci ea" type="number" placeholder="0"></td>'+
+        '<td class="o esh">0</td><td class="o eno">$0</td>';
+      etbl.appendChild(tr);
+    });
+  }
+  function recomputeEtf(){
+    if(!etbl) return; var tot=0;
+    etbl.querySelectorAll('tr[data-ei]').forEach(function(tr){
+      var p=num(tr.querySelector('.ep').value), a=num(tr.querySelector('.ea').value);
+      var sh=(p>0&&a>0)?Math.floor(a/p):0, no=sh*p;
+      tr.querySelector('.esh').textContent=sh; tr.querySelector('.eno').textContent=money(no); tot+=no;
+    });
+    if(etfOut) etfOut.innerHTML='Daily-ETF notional: <b style="color:var(--txt)">'+money(tot)+'</b> · tactical (days) — decays if held through chop.';
+  }
+  if(etbl){ etbl.addEventListener('input',recomputeEtf); recomputeEtf(); }
+
+  document.getElementById('liveBtn').addEventListener('click',function(){
+    var px=window.__DRD_PX||{};
+    tbl.querySelectorAll('tr[data-i]').forEach(function(tr,i){
+      var k=rows[i].k; if(px[k]!==undefined) tr.querySelector('.u').value=(+px[k]).toFixed(2);
+    });
+    if(etbl){ etbl.querySelectorAll('tr[data-ei]').forEach(function(tr,i){
+      var k=etfRows[i].k; if(px[k]!==undefined) tr.querySelector('.ep').value=(+px[k]).toFixed(2);
+    }); }
+    recompute(); recomputeEtf();
+  });
+  tbl.addEventListener('input',recompute);
+  pf.addEventListener('input',recompute); bp.addEventListener('input',recompute);
+  recompute();
+})();
+</script>
+</body>
+</html>

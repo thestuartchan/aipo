@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anthropic · S-1 Trading Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#08070f;--panel:#110e1c;--panel2:#171327;--line:#241d38;
+    --txt:#ece8f5;--mut:#998fb0;--dim:#615873;
+    --anth:#a78bfa;--anth2:#c4b5fd;--grn:#3fb950;--red:#f85149;--blu:#58a6ff;--amber:#ffb000;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--txt);font-family:'IBM Plex Sans',sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;
+    background-image:linear-gradient(rgba(167,139,250,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(167,139,250,.018) 1px,transparent 1px);background-size:42px 42px}
+  .wrap{max-width:1040px;margin:0 auto;padding:22px 18px 70px}
+  .mono{font-family:'IBM Plex Mono',monospace}
+  .rise{opacity:0;transform:translateY(10px);animation:rise .6s ease forwards}
+  @keyframes rise{to{opacity:1;transform:translateY(0)}}
+
+  .nav{display:flex;align-items:center;gap:8px;margin-bottom:16px;font-family:'IBM Plex Mono',monospace;flex-wrap:wrap}
+  .navbrand{font-size:11px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-right:4px}
+  .navlink{font-size:13px;letter-spacing:.5px;padding:7px 14px;border-radius:8px;border:1px solid var(--line);color:var(--mut);text-decoration:none;background:var(--panel)}
+  .navlink:hover{color:var(--txt);border-color:var(--dim)}
+  .navlink.active{color:#0a0614;background:var(--anth);border-color:var(--anth);font-weight:700}
+
+  header{border:1px solid var(--line);background:linear-gradient(160deg,var(--panel),#0b0914);border-radius:10px;padding:18px 18px 16px;position:relative;overflow:hidden}
+  header::before{content:"";position:absolute;inset:0;background:radial-gradient(600px 120px at 8% -10%,rgba(167,139,250,.12),transparent 70%);pointer-events:none}
+  .tickrow{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+  .tick{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:46px;letter-spacing:2px;color:var(--anth);line-height:.9}
+  .tick .q{color:var(--dim);font-size:30px}
+  .exch{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);letter-spacing:2px;border:1px solid var(--line);padding:3px 7px;border-radius:4px;margin-bottom:6px}
+  .coname{font-size:14px;color:var(--mut);font-weight:500;margin-top:6px}
+  .statusbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .pill{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.5px;border:1px solid var(--line);background:var(--panel2);padding:5px 9px;border-radius:5px;color:var(--mut)}
+  .pill b{color:var(--txt);font-weight:600}
+  .pill.live{border-color:rgba(167,139,250,.45);color:var(--anth2)}
+  .pill.live b{color:var(--anth2)}
+  .pill.warn{border-color:rgba(255,176,0,.4);color:var(--amber)}
+  .pill.warn b{color:var(--amber)}
+
+  h2{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:3px;color:var(--anth2);text-transform:uppercase;margin:30px 0 12px;display:flex;align-items:center;gap:10px}
+  h2::before{content:"";width:6px;height:6px;background:var(--anth);transform:rotate(45deg);flex:none}
+  h2 .num{color:var(--dim);font-weight:400}
+  .lead{color:var(--mut);font-size:13.5px;margin-bottom:14px;max-width:82ch}
+
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .stat{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:13px 14px}
+  .stat .k{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase}
+  .stat .v{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:700;margin-top:5px;letter-spacing:.5px}
+  .stat .sub{font-size:11px;color:var(--mut);margin-top:3px}
+  .v.anth{color:var(--anth)} .v.grn{color:var(--grn)} .v.red{color:var(--red)} .v.blu{color:var(--blu)} .v.amber{color:var(--amber)}
+
+  .tbl{width:100%;border-collapse:collapse;border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:13px}
+  .tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);text-align:left;padding:10px 12px;background:var(--panel2);border-bottom:1px solid var(--line);font-weight:600}
+  .tbl td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
+  .tbl td:first-child{color:var(--txt);font-weight:500}
+  .tbl tr:last-child td{border-bottom:none}
+  .tbl tr:hover td{background:rgba(167,139,250,.03)}
+  .num-c{font-family:'IBM Plex Mono',monospace;color:var(--txt)!important}
+  .tag{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.5px;padding:2px 6px;border-radius:4px;white-space:nowrap}
+  .tag.lo{background:rgba(63,185,80,.12);color:var(--grn);border:1px solid rgba(63,185,80,.3)}
+  .tag.med{background:rgba(255,176,0,.12);color:var(--amber);border:1px solid rgba(255,176,0,.3)}
+  .tag.hi{background:rgba(248,81,73,.12);color:var(--red);border:1px solid rgba(248,81,73,.3)}
+  .tag.flag{background:rgba(88,166,255,.12);color:var(--blu);border:1px solid rgba(88,166,255,.3)}
+
+  .risks{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .risk{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:12px 13px;border-left:3px solid var(--dim)}
+  .risk.hi{border-left-color:var(--red)} .risk.med{border-left-color:var(--amber)}
+  .risk .rt{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--txt);display:flex;justify-content:space-between;gap:8px;align-items:center}
+  .risk .rb{font-size:12.5px;color:var(--mut);margin-top:6px}
+
+  .callout{border:1px solid rgba(88,166,255,.3);background:rgba(88,166,255,.05);border-radius:8px;padding:14px 16px}
+  .callout h3{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+  .callout ul{list-style:none;font-size:13px;color:var(--mut)}
+  .callout li{padding:4px 0 4px 18px;position:relative}
+  .callout li::before{content:"▹";position:absolute;left:0;color:var(--blu)}
+  .callout li b{color:var(--txt);font-weight:600}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  .banner{border:1px solid rgba(167,139,250,.3);background:rgba(167,139,250,.06);border-radius:8px;padding:12px 15px;font-size:12.5px;color:var(--mut);display:flex;gap:10px;align-items:flex-start}
+  .banner b{color:var(--anth2);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px}
+
+  footer{margin-top:34px;border-top:1px solid var(--line);padding-top:16px;font-size:11.5px;color:var(--dim)}
+  footer .mono{font-family:'IBM Plex Mono',monospace;color:var(--mut)}
+  .scrollx{overflow-x:auto}
+  @media (max-width:720px){.grid{grid-template-columns:1fr 1fr}.risks{grid-template-columns:1fr}.twocol{grid-template-columns:1fr}.tick{font-size:34px}}
+  @media print{body{background:#fff;color:#000;background-image:none}.stat,.tbl,.risk,header,.banner,.callout{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="nav">
+    <span class="navbrand">IPO Watch</span>
+    <a class="navlink" href="index.html">Dashboard</a>
+    <a class="navlink" href="MegaIPO_Catalyst_Calendar.html">Calendar</a>
+    <a class="navlink" href="SPCX_S1_Briefing.html">SpaceX S-1</a>
+    <a class="navlink" href="OpenAI_S1_Briefing.html">OpenAI S-1</a>
+    <a class="navlink active">Anthropic S-1</a>
+  </div>
+
+  <header class="rise">
+    <div class="tickrow"><div class="tick">ANTH <span class="q">?</span></div><div class="exch">EXCHANGE / TICKER — UNCONFIRMED</div></div>
+    <div class="coname">Anthropic PBC — Public Benefit Corp. under a Long-Term Benefit Trust · maker of Claude</div>
+    <div class="statusbar">
+      <span class="pill live">● CONFIDENTIAL FILING <b>1 JUN 2026</b></span>
+      <span class="pill">PUBLIC S-1 <b>TBD (≥15d pre-roadshow)</b></span>
+      <span class="pill">TARGET LIST <b>~OCT / "this fall"</b></span>
+      <span class="pill">VALUATION <b>~$965B → $1T+</b></span>
+      <span class="pill warn">UNDERWRITERS <b>not disclosed</b></span>
+    </div>
+  </header>
+
+  <div class="banner rise" style="margin-top:14px;animation-delay:.04s">
+    <b>⚠ READ</b>
+    <span>Confidential filing (1 Jun) — <b style="font-size:12.5px;letter-spacing:0">no public financials</b> until ~15 days before the roadshow. Unlike OpenAI, there is <b style="font-size:12.5px;letter-spacing:0">no leaked cap table</b>; the ownership below is inferred from backers' own public filings and commitments, not the S-1. Forward figures (Q2 revenue, first profit, break-even) are company guidance to investors, not audited. Treat accordingly.</span>
+  </div>
+
+  <h2 class="rise"><span class="num">01 /</span> Snapshot <span style="font-size:9px;color:var(--dim);letter-spacing:1px;margin-left:4px">(reported / estimated)</span></h2>
+  <div class="grid rise">
+    <div class="stat"><div class="k">Last Private Val.</div><div class="v anth">$965B</div><div class="sub">Series H, 28 May '26 — passed OpenAI ($852B)</div></div>
+    <div class="stat"><div class="k">Series H Raise</div><div class="v">$65B</div><div class="sub">incl. ~$15B pre-committed hyperscaler ($5B AMZN)</div></div>
+    <div class="stat"><div class="k">Run-Rate Revenue</div><div class="v grn">~$47B</div><div class="sub">annualized mid-'26; ~$10B prior yr</div></div>
+    <div class="stat"><div class="k">Q1'26 Revenue</div><div class="v">$4.8B</div><div class="sub">vs OpenAI $5.7B same quarter</div></div>
+    <div class="stat"><div class="k">Q2'26 Revenue (proj.)</div><div class="v grn">$10.9B</div><div class="sub">&gt;2× Q1; exceeds all of FY25 in one qtr</div></div>
+    <div class="stat"><div class="k">Rev. Multiple</div><div class="v anth">~20×</div><div class="sub">cheapest of 3 (OAI 34–40×, SPCX ~95×)</div></div>
+    <div class="stat"><div class="k">Break-even Target</div><div class="v grn">2028</div><div class="sub">2 yrs ahead of OpenAI (2030)</div></div>
+    <div class="stat"><div class="k">Q2'26 Op. Profit (proj.)</div><div class="v grn">~$559M</div><div class="sub">reported first profitable quarter</div></div>
+    <div class="stat"><div class="k">Total Funding</div><div class="v">~$125B</div><div class="sub">PBC + Long-Term Benefit Trust governance</div></div>
+  </div>
+
+  <h2 class="rise"><span class="num">02 /</span> Backers & Ownership <span class="tag flag" style="margin-left:6px">INFERRED — NOT OFFICIAL</span></h2>
+  <p class="lead">Anthropic does not disclose ownership %s and there's no leaked cap table — the figures below come from backers' own filings/commitments. The Series H is less a VC round than a <b>structured consortium of the infrastructure vendors Anthropic runs on</b> (cloud, chips, memory). The S-1 will put precise numbers on these stakes for the first time.</p>
+  <div class="scrollx rise">
+  <table class="tbl">
+    <tr><th>Holder</th><th>Stake / detail</th><th>Why it matters to you</th></tr>
+    <tr><td>Amazon (AMZN)</td><td class="num-c">~$74B paper · mid-high teens %</td><td>$42.2B convert notes + $32B nonvoting pref (Apr filing); ~$135–160B at $965B. Booked $16.8B pre-tax gain in Q1'26. Biggest winner — but a sliver of Amazon's cap → diluted read.</td></tr>
+    <tr><td>Alphabet (GOOGL)</td><td class="num-c">Major early backer</td><td>Cloud + TPU supplier; large stake (per court docs), commitments reported up to ~$40B over time. Diluted proxy and a key compute counterparty.</td></tr>
+    <tr><td>Microsoft + Nvidia</td><td class="num-c">up to $15B announced</td><td>Paired with Anthropic's ~$30B Azure commitment. Capital and compute intertwined — same circularity as the AI-infra web.</td></tr>
+    <tr><td>Samsung · SK Hynix</td><td class="num-c">Series H participants</td><td>Make the HBM memory that runs Claude inference — supplier-investors funding their own customer.</td></tr>
+    <tr><td>Salesforce (CRM)</td><td class="num-c">~$5B stake</td><td>Smaller strategic holder; tiny relative to CRM's cap.</td></tr>
+    <tr><td>Series H co-leads</td><td class="num-c">Altimeter · Dragoneer · Greenoaks · Sequoia</td><td>$65B closed 28 May '26 — widely expected to be the last private raise before IPO.</td></tr>
+    <tr><td>Series G leads (Feb)</td><td class="num-c">GIC · Coatue + DE Shaw, Founders Fund, ICONIQ, MGX…</td><td>$30B at $380B — the mark Amazon's $74B was struck against before the jump to $965B.</td></tr>
+  </table>
+  </div>
+
+  <h2 class="rise"><span class="num">03 /</span> Risk Factors — what the roadshow will fight over</h2>
+  <p class="lead">No public risk section yet (confidential). These are the structural debates already visible. Severity tags are my read.</p>
+  <div class="risks rise">
+    <div class="risk hi"><div class="rt">Valuation compression <span class="tag hi">HIGH</span></div><div class="rb">~20× run-rate only holds if revenue keeps roughly doubling. Public markets may mark it below the $965B private mark → below-valuation IPO risk that dents morale, customers, and future raises.</div></div>
+    <div class="risk hi"><div class="rt">Compute cost & circularity <span class="tag hi">HIGH</span></div><div class="rb">~$80B cloud through 2029; ~$1.25B/mo GPU via SpaceX Colossus; ~$30B Azure. Backers are also the vendors — they fund Anthropic and sell it infra. Profit needs revenue to keep outrunning compute inflation.</div></div>
+    <div class="risk hi"><div class="rt">Competition / commoditization <span class="tag hi">HIGH</span></div><div class="rb">OpenAI, Google DeepMind, xAI and open-source (Meta Llama, Mistral) can erode model pricing power in a four-way capability race.</div></div>
+    <div class="risk med"><div class="rt">PBC + LTBT governance <span class="tag med">MED</span></div><div class="rb">Mission ("safe AI") sits above shareholder value; the Long-Term Benefit Trust can override investor interests. Public buyers get economics with constrained control.</div></div>
+    <div class="risk med"><div class="rt">Run-rate vs realized <span class="tag med">MED</span></div><div class="rb">$47B is an annualized snapshot off a <i>projected</i> quarter, not booked FY revenue (~$10B FY25). Mind the gap between run-rate and realized.</div></div>
+    <div class="risk med"><div class="rt">Safety-first leaves revenue on table <span class="tag med">MED</span></div><div class="rb">Held back Claude Mythos Preview (Apr) over cyber-misuse concerns. The discipline is the brand — but bears read it as capped monetization vs. less-restrained rivals.</div></div>
+  </div>
+
+  <h2 class="rise"><span class="num">04 /</span> The Bull / Bear Split</h2>
+  <div class="twocol rise">
+    <div class="callout" style="border-color:rgba(63,185,80,.3);background:rgba(63,185,80,.05)">
+      <h3 style="color:var(--grn)">▲ The Case</h3>
+      <ul>
+        <li><b>Cheapest multiple of the trio</b> — ~20× vs OpenAI 34–40×, SPCX ~95×</li>
+        <li><b>Enterprise-led:</b> Claude Code + 300k+ business customers; safety focus wins regulated buyers</li>
+        <li><b>Approaching profitability</b> — break-even targeted 2028, ~$559M projected Q2'26 op profit (2 yrs ahead of OpenAI)</li>
+        <li>Run-rate <b>(~$47B) reportedly now above OpenAI's</b> (~$25B), driven by Claude Code</li>
+      </ul>
+    </div>
+    <div class="callout" style="border-color:rgba(248,81,73,.3);background:rgba(248,81,73,.05)">
+      <h3 style="color:var(--red)">▼ The Overhang</h3>
+      <ul>
+        <li><b>$80B compute</b> through 2029; ~$1.25B/mo GPU — profit hostage to compute inflation</li>
+        <li><b>Circular consortium</b> — Amazon/Google/MSFT/Nvidia/Samsung/SK Hynix invest <i>and</i> sell infra</li>
+        <li><b>5.3× in 8 months</b> ($183B → $965B) — marks may be ahead of fundamentals</li>
+        <li>PBC/LTBT governance overhang; no audited financials until the public S-1</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 class="rise"><span class="num">05 /</span> Ways to Express It</h2>
+  <p class="lead">The honest headline: of the three IPOs, Anthropic has the <b>least direct proxy</b>. There is no clean pure-play — most "Anthropic trades" are really diluted bets on Amazon or Google.</p>
+  <div class="scrollx rise">
+  <table class="tbl">
+    <tr><th>Vehicle</th><th>Exposure</th><th>The catch</th></tr>
+    <tr><td>Amazon (AMZN)</td><td class="num-c">~$74B stake · mid-high teens %</td><td>Biggest stakeholder and cleanest liquid read — but Anthropic is small vs Amazon's ~$2.4T cap. Moves on AWS, retail, ads far more than on Anthropic.</td></tr>
+    <tr><td>Alphabet (GOOGL)</td><td class="num-c">Major backer + TPU vendor</td><td>Diluted; reacts to search/cloud/antitrust first. A read-through, not a proxy.</td></tr>
+    <tr><td>Salesforce (CRM)</td><td class="num-c">~$5B stake</td><td>Tiny relative exposure; won't move the stock.</td></tr>
+    <tr><td>Forge / Hiive (secondary)</td><td class="num-c">Direct pre-IPO</td><td>Accredited only; thin liquidity, verify the mark vs the $965B round.</td></tr>
+    <tr><td>Compute/supplier basket</td><td class="num-c">NVDA, AVGO, memory</td><td>Second-derivative; weak direct correlation to the listing itself.</td></tr>
+    <tr><td>Direct allocation</td><td class="num-c">SPCX-style retail tranche</td><td>Underwriters not yet disclosed; no retail mechanism announced. Watch the public S-1.</td></tr>
+  </table>
+  </div>
+
+  <h2 class="rise"><span class="num">06 /</span> Verify Before Acting</h2>
+  <div class="scrollx rise">
+  <table class="tbl">
+    <tr><th>Item</th><th>Status</th><th>Note</th></tr>
+    <tr><td>All financials (rev, run-rate, margins)</td><td><span class="tag flag">REPORTED / EST.</span></td><td>Confidential filing — audited numbers land ~15d pre-roadshow. Until then: press + analyst estimates.</td></tr>
+    <tr><td>Ownership %s (Amazon, Google, etc.)</td><td><span class="tag hi">INFERRED</span></td><td>No leaked cap table. Inferred from backers' filings/commitments. The S-1 will confirm.</td></tr>
+    <tr><td>$559M Q2 op profit · break-even 2028</td><td><span class="tag med">GUIDANCE</span></td><td>Company-told-investors projection, not audited results. The first earnings will test it.</td></tr>
+    <tr><td>ANTH ticker / exchange</td><td><span class="tag med">UNCONFIRMED</span></td><td>Only set in the public registration. "ANTH" is a placeholder.</td></tr>
+    <tr><td>~Oct / "this fall" listing</td><td><span class="tag med">TARGET</span></td><td>Confidential timing depends on SEC review + market; can slip. Plan for a window, not a date.</td></tr>
+    <tr><td>$1.25B/mo SpaceX (Colossus) compute</td><td><span class="tag lo">CONFIRMED</span></td><td>Disclosed in SpaceX's own prospectus: ~$1.25B/mo through May 2029.</td></tr>
+  </table>
+  </div>
+
+  <footer class="rise">
+    <div class="mono">SOURCE OF TRUTH → SEC EDGAR once the public S-1 lands. Nothing here is from the filing yet — Anthropic's submission is confidential.</div>
+    <div style="margin-top:8px">Compiled from Fortune, CNBC, Bloomberg, TechCrunch, Reuters, Sacra and analyst writeups (univest/indmoney), as of 5 Jun 2026. Ownership is inferred from backers' public filings, not Anthropic's. Reference sheet, not a recommendation.</div>
+  </footer>
+
+</div>
+</body>
+</html>
