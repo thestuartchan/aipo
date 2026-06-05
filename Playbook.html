@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sequencing Playbook · Mega-IPO Trades</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#06090c;--panel:#0d141a;--panel2:#121b22;--line:#1d2a33;
+    --txt:#e6f0f3;--mut:#8aa0aa;--dim:#566872;
+    --grn:#3fb950;--grn2:#56d364;--red:#f85149;--amber:#ffb000;--blu:#58a6ff;
+    --spcx:#ffb000;--oai:#2dd4bf;--anth:#a78bfa;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--txt);font-family:'IBM Plex Sans',sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased;
+    background-image:linear-gradient(rgba(63,185,80,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(63,185,80,.02) 1px,transparent 1px);background-size:44px 44px}
+  .wrap{max-width:1080px;margin:0 auto;padding:24px 18px 80px}
+  .mono{font-family:'IBM Plex Mono',monospace}
+  b{color:var(--txt);font-weight:600}
+
+  .nav{display:flex;align-items:center;gap:8px;margin-bottom:16px;font-family:'IBM Plex Mono',monospace;flex-wrap:wrap}
+  .navbrand{font-size:13px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-right:4px}
+  .navlink{font-size:16px;letter-spacing:.5px;padding:7px 14px;border-radius:8px;border:1px solid var(--line);color:var(--mut);text-decoration:none;background:var(--panel)}
+  .navlink:hover{color:var(--txt);border-color:var(--dim)}
+  .navlink.active{color:#04140a;background:var(--grn);border-color:var(--grn);font-weight:700}
+
+  header{border:1px solid var(--line);background:linear-gradient(155deg,var(--panel),#080c10);border-radius:11px;padding:20px;position:relative;overflow:hidden}
+  header::before{content:"";position:absolute;inset:0;background:radial-gradient(620px 130px at 6% -10%,rgba(63,185,80,.10),transparent 70%);pointer-events:none}
+  .kicker{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:3px;color:var(--dim);text-transform:uppercase}
+  h1{font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:700;letter-spacing:.5px;margin:8px 0 6px;color:var(--txt)}
+  h1 span{color:var(--grn)}
+  .sub{color:var(--mut);font-size:15.5px;max-width:84ch}
+  .statusbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}
+  .pill{font-family:'IBM Plex Mono',monospace;font-size:12.5px;letter-spacing:.5px;border:1px solid var(--line);background:var(--panel2);padding:5px 10px;border-radius:5px;color:var(--mut)}
+  .pill b{color:var(--txt)}
+  .pill.live{border-color:rgba(63,185,80,.4);color:var(--grn2)} .pill.live b{color:var(--grn2)}
+
+  .banner{border:1px solid rgba(255,176,0,.3);background:rgba(255,176,0,.06);border-radius:9px;padding:13px 16px;font-size:14px;color:var(--mut);display:flex;gap:10px;align-items:flex-start;margin-top:14px}
+  .banner b.t{color:var(--amber);font-family:'IBM Plex Mono',monospace;font-size:12.5px;letter-spacing:1px;flex:none}
+
+  h2{font-family:'IBM Plex Mono',monospace;font-size:15px;letter-spacing:2.5px;color:var(--grn2);text-transform:uppercase;margin:34px 0 13px;display:flex;align-items:center;gap:10px}
+  h2::before{content:"";width:7px;height:7px;background:var(--grn);transform:rotate(45deg);flex:none}
+  h2 .num{color:var(--dim);font-weight:400}
+  .lead{color:var(--mut);font-size:15px;margin-bottom:15px;max-width:90ch}
+  .lead.tight{margin-bottom:10px}
+  p.body{color:var(--mut);font-size:15px;margin-bottom:11px;max-width:92ch}
+
+  /* phases */
+  .phase{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:0;margin-bottom:10px;overflow:hidden;display:grid;grid-template-columns:150px 1fr}
+  .phase .ph{background:var(--panel2);padding:13px 14px;border-right:1px solid var(--line)}
+  .phase .pn{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;color:var(--grn2);font-weight:700}
+  .phase .pd{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dim);margin-top:4px}
+  .phase .pc{padding:13px 15px;font-size:14.5px;color:var(--mut)}
+  .phase .pc b{color:var(--txt)}
+  .phase .pc .mv{display:block;margin-top:6px;padding-left:16px;position:relative}
+  .phase .pc .mv::before{content:"▸";position:absolute;left:0;color:var(--grn)}
+
+  /* scenarios */
+  .scen{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+  .sc{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:14px;border-top:3px solid var(--dim)}
+  .sc.bull{border-top-color:var(--grn)} .sc.chop{border-top-color:var(--amber)} .sc.bear{border-top-color:var(--red)}
+  .sc h3{font-family:'IBM Plex Mono',monospace;font-size:14px;letter-spacing:.5px;margin-bottom:3px}
+  .sc.bull h3{color:var(--grn2)} .sc.chop h3{color:var(--amber)} .sc.bear h3{color:var(--red)}
+  .sc .prob{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--dim);margin-bottom:9px}
+  .sc .blk{margin-bottom:9px}
+  .sc .bl{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:1px;color:var(--dim);text-transform:uppercase;display:block;margin-bottom:3px}
+  .sc .bt{font-size:13.5px;color:var(--mut)}
+  .sc .bt b{color:var(--txt)}
+
+  /* tables */
+  .scrollx{overflow-x:auto}
+  .tbl{width:100%;border-collapse:collapse;border:1px solid var(--line);border-radius:9px;overflow:hidden;font-size:14px;min-width:760px}
+  .tbl th{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);text-align:left;padding:10px 12px;background:var(--panel2);border-bottom:1px solid var(--line);font-weight:600}
+  .tbl td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
+  .tbl td:first-child{color:var(--txt);font-weight:600;font-family:'IBM Plex Mono',monospace;font-size:13px}
+  .tbl tr:last-child td{border-bottom:none}
+  .tbl tr:hover td{background:rgba(63,185,80,.03)}
+  .role{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.5px;color:var(--mut)}
+  .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;padding:2px 7px;border-radius:4px;white-space:nowrap;display:inline-block}
+  .tag.hold{background:rgba(63,185,80,.12);color:var(--grn2);border:1px solid rgba(63,185,80,.3)}
+  .tag.flip{background:rgba(88,166,255,.12);color:var(--blu);border:1px solid rgba(88,166,255,.3)}
+  .tag.bull{background:rgba(63,185,80,.10);color:var(--grn2);border:1px solid rgba(63,185,80,.3)}
+  .tag.bear{background:rgba(248,81,73,.10);color:var(--red);border:1px solid rgba(248,81,73,.3)}
+  .tag.all{background:rgba(255,176,0,.10);color:var(--amber);border:1px solid rgba(255,176,0,.3)}
+  .tag.s{background:rgba(255,176,0,.12);color:var(--spcx);border:1px solid rgba(255,176,0,.3)}
+  .tag.o{background:rgba(45,212,191,.12);color:var(--oai);border:1px solid rgba(45,212,191,.3)}
+  .tag.a{background:rgba(167,139,250,.12);color:var(--anth);border:1px solid rgba(167,139,250,.3)}
+
+  /* per-ipo */
+  .ipo{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:15px;margin-bottom:11px;border-left:3px solid}
+  .ipo.s{border-left-color:var(--spcx)} .ipo.o{border-left-color:var(--oai)} .ipo.a{border-left-color:var(--anth)}
+  .ipo .ih{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+  .ipo .nm{font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:700}
+  .ipo.s .nm{color:var(--spcx)} .ipo.o .nm{color:var(--oai)} .ipo.a .nm{color:var(--anth)}
+  .ipo .dt{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--dim)}
+  .ipo .row{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .ipo .cell{font-size:14px;color:var(--mut)}
+  .ipo .cell .cl{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px}
+  .ipo .cell.up .cl{color:var(--grn2)} .ipo .cell.dn .cl{color:var(--red)}
+  .ipo .cell b{color:var(--txt)}
+
+  /* callout / cards */
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .card{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:14px}
+  .card h4{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--blu);letter-spacing:.5px;margin-bottom:7px}
+  .card p{font-size:14px;color:var(--mut)}
+  .card p b{color:var(--txt)}
+  .card .when{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--dim);margin-top:7px;display:block}
+
+  .risk{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:12px 14px;border-left:3px solid var(--red);margin-bottom:9px}
+  .risk .rt{font-family:'IBM Plex Mono',monospace;font-size:13.5px;font-weight:600;color:var(--txt)}
+  .risk .rb{font-size:14px;color:var(--mut);margin-top:5px}
+  .risk.esc{border-left-color:var(--grn)}
+  .risk.esc .rt{color:var(--grn2)}
+
+  .flat{border:1px solid rgba(248,81,73,.4);background:rgba(248,81,73,.07);border-radius:9px;padding:14px 16px;margin:14px 0}
+  .flat .ft{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:6px}
+  .flat p{font-size:14.5px;color:var(--mut)} .flat b{color:var(--txt)}
+
+  footer{margin-top:32px;border-top:1px solid var(--line);padding-top:16px;font-size:13px;color:var(--dim)}
+  footer .mono{color:var(--mut)}
+
+  @media (max-width:760px){
+    .scen{grid-template-columns:1fr}
+    .ipo .row{grid-template-columns:1fr}
+    .cards{grid-template-columns:1fr}
+    .phase{grid-template-columns:1fr}
+    .phase .ph{border-right:none;border-bottom:1px solid var(--line)}
+    h1{font-size:24px}
+  }
+  @media print{body{background:#fff;color:#000;background-image:none}.phase,.sc,.ipo,.card,.risk,.tbl,header{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="nav">
+    <span class="navbrand">IPO Watch</span>
+    <a class="navlink" href="index.html">Dashboard</a>
+    <a class="navlink" href="MegaIPO_Catalyst_Calendar.html">Calendar</a>
+    <a class="navlink" href="SPCX_S1_Briefing.html">SpaceX S-1</a>
+    <a class="navlink" href="OpenAI_S1_Briefing.html">OpenAI S-1</a>
+    <a class="navlink" href="Anthropic_S1_Briefing.html">Anthropic S-1</a>
+    <a class="navlink active">Playbook</a>
+  </div>
+
+  <header>
+    <div class="kicker">Sequencing Playbook · updated 05 Jun 2026</div>
+    <h1>How to <span>trade the sequence</span>, June → Q4</h1>
+    <div class="sub">One plan across all three debuts: what to hold, what to flip, when to enter, and how to get out. The thesis in one line — this is a <b>sequence trade</b>, not three separate ones: each debut both pays and re-prices the next, so the order (SpaceX → OpenAI public S-1 → the fall collision) is the edge.</div>
+    <div class="statusbar">
+      <span class="pill live">● FIRST DEBUT <b>SPCX · 12 JUN</b></span>
+      <span class="pill">LAST <b>OpenAI · Q4</b></span>
+      <span class="pill">REGIME <b>read off the Dashboard ladder</b></span>
+      <span class="pill">DEFAULT STANCE <b>cheap convexity + dry powder</b></span>
+    </div>
+  </header>
+
+  <div class="banner">
+    <b class="t">⚠ FRAME</b>
+    <span>This is a <b>scenario map and idea inventory</b>, not a set of instructions — every line is conditional ("if X, consider Y"), defined-risk where possible, and sized to your own book. You know the landscape and that I'm not your advisor. Everything keys off catalysts that haven't happened yet; treat dates as windows, not commitments.</span>
+  </div>
+
+  <!-- THESIS -->
+  <h2><span class="num">01 /</span> The Core Thesis</h2>
+  <p class="body"><b>The first debut sets the risk appetite for the rest.</b> SpaceX (12 Jun) is the tape's mood-setter — a fixed $135 price on only ~5% float means it almost certainly pops, but the <i>day-2-to-week-2</i> behaviour is the real signal. A pop that holds emboldens the AI book; a break of issue price within days is the "top-is-in" tell that travels straight to OpenAI and Anthropic.</p>
+  <p class="body"><b>The AI debuts are the systemic test, not SpaceX.</b> The fragile thing in this market is the web of circular AI financing (vendor-investors funding their own customers). The moment that matters is whether <b>OpenAI prices at or below its last private mark ($852B)</b> in Q4 — a down-mark repudiates private valuations across the board and is the single most likely cascade trigger. Anthropic is the higher-quality, cheaper name (~20× vs OpenAI ~34–40×) and most likely to hold its mark; it's the long side of the quality pair.</p>
+  <p class="body"><b>Trade the information events, not just direction.</b> The public S-1s (OpenAI ~Aug) are when private fictions meet audited reality. Position <i>into</i> them with defined risk, and let the reaction — not your prior — size the next move. The dashboard's escalation ladder is the governor: GREEN = stay long & keep hedges cheap, AMBER = de-risk & build, RED = defend & get flat on beta.</p>
+
+  <!-- PHASES -->
+  <h2><span class="num">02 /</span> The Flow — Six Phases, First IPO to Last</h2>
+  <div class="phase">
+    <div class="ph"><div class="pn">PHASE 0</div><div class="pd">now → 11 Jun</div></div>
+    <div class="pc"><b>Pre-position while it's calm.</b> VIX ~15 = cheapest insurance you'll get all year.
+      <span class="mv">Buy the fall convexity NOW: QQQ put debit spreads + a VIX call spread dated <b>Oct/Nov</b> (past the collision). This is held the whole way through.</span>
+      <span class="mv">Build the cash reserve (15–30%). Optionally start a small SFTBY momentum long if you want pre-debut AI beta.</span></div>
+  </div>
+  <div class="phase">
+    <div class="ph"><div class="pn">PHASE 1</div><div class="pd">11–12 Jun + 2wks</div></div>
+    <div class="pc"><b>SpaceX debut — the first read.</b> Price 11 Jun, trade 12 Jun.
+      <span class="mv"><b>Don't chase the day-1 pop</b> (thin float, retail trap). Hold SATS as the real stakeholder long into it.</span>
+      <span class="mv">Watch days 2–10: holds above $135 → risk-on confirmed. Breaks $135 → activate tactical SQQQ/7568 (days only) and lean on the QQQ puts.</span></div>
+  </div>
+  <div class="phase">
+    <div class="ph"><div class="pn">PHASE 2</div><div class="pd">late Jun → Aug</div></div>
+    <div class="pc"><b>The lull — harvest & reload.</b>
+      <span class="mv"><b>Nasdaq-100 inclusion front-run:</b> accumulate SPCX in late June ahead of the ~15-trading-day eligibility (~early Jul), flip into the passive-demand bid. Pure event alpha, not a hold.</span>
+      <span class="mv">If convexity gained on a SpaceX wobble, take partial profit and re-strike. Keep accumulating fall hedges if VIX stays low.</span></div>
+  </div>
+  <div class="phase">
+    <div class="ph"><div class="pn">PHASE 3</div><div class="pd">~Aug</div></div>
+    <div class="pc"><b>OpenAI public S-1 — reality check.</b> First audited AI financials (the ~−122% margin / ~$14B burn go public).
+      <span class="mv">Put on the <b>quality pair</b>: long Anthropic-proxy (AMZN) vs OpenAI-downside (SFTBY put spread). Cheap + profitable-path vs pricey + burning.</span>
+      <span class="mv">Strong S-1 → melt-up continuation, ride beta. Weak S-1 → begin the repudiation book in earnest.</span></div>
+  </div>
+  <div class="phase">
+    <div class="ph"><div class="pn">PHASE 4</div><div class="pd">Sep → Nov</div></div>
+    <div class="pc"><b>The collision — the systemic test.</b> Anthropic (~Oct) + OpenAI (Q4) debuts + SpaceX lockup all overlap.
+      <span class="mv">Anthropic debut: AMZN is the cleanest stakeholder read (hold; size for dilution). OpenAI debut vs $852B mark is the cascade node — full hedge: QQQ/SOXX puts + SFTBY short + VIX.</span>
+      <span class="mv">SpaceX lockup opens ~Sep 10: trim any SPCX into it. If HYG <i>and</i> VIX both crack → RED → defend.</span></div>
+  </div>
+  <div class="phase">
+    <div class="ph"><div class="pn">PHASE 5</div><div class="pd">Q4 → Q1'27</div></div>
+    <div class="pc"><b>Aftermath & the slip.</b> If OpenAI slips to Q1'27, the collision de-stacks → relief rally; roll or bank hedges.
+      <span class="mv">Tally which debuts held their marks — the survivors define the next regime and your residual longs.</span></div>
+  </div>
+
+  <!-- SCENARIOS -->
+  <h2><span class="num">03 /</span> Three Scenarios &amp; the Book in Each</h2>
+  <div class="scen">
+    <div class="sc bull">
+      <h3>▲ MELT-UP</h3>
+      <div class="prob">marks hold · ~25–30%</div>
+      <div class="blk"><span class="bl">Looks like</span><span class="bt">SpaceX pops &amp; holds; OpenAI/Anthropic price at/above marks; VIX &lt;20; credit calm; capex story intact.</span></div>
+      <div class="blk"><span class="bl">The book</span><span class="bt">Stay long beta (QQQ, AI-infra AVGO/ORCL/VRT), SATS, AMZN/GOOGL, SFTBY into run-ups. Hedges kept <b>cheap &amp; small</b> (carry). Front-run inclusion; flip the pops; hold the quality.</span></div>
+      <div class="blk"><span class="bl">Maximize</span><span class="bt">Lean into momentum &amp; pre-debut proxy run-ups, then <b>sell the news</b> into each actual debut.</span></div>
+      <div class="blk"><span class="bl">Trap</span><span class="bt">Complacency — the melt-up is where the reversal builds. Never drop hedges to zero.</span></div>
+    </div>
+    <div class="sc chop">
+      <h3>≈ CHOP / ROTATION</h3>
+      <div class="prob">base case · ~45–50%</div>
+      <div class="blk"><span class="bl">Looks like</span><span class="bt">Some debuts work, some don't; rotation not collapse, no clean melt-up. The most probable path.</span></div>
+      <div class="blk"><span class="bl">The book</span><span class="bt">Balanced: keep core quality longs (AMZN) + cheap convexity; <b>flip</b> the tactical trades around each event; commit to neither side.</span></div>
+      <div class="blk"><span class="bl">Maximize</span><span class="bt">Trade the range — fade the day-1 euphoria, buy the post-event flush. Event-by-event, not regime-bet.</span></div>
+      <div class="blk"><span class="bl">Trap</span><span class="bt">Over-trading &amp; paying spreads/decay. Pick your 3–4 events, sit out the noise.</span></div>
+    </div>
+    <div class="sc bear">
+      <h3>▼ MARKS REPUDIATION</h3>
+      <div class="prob">cascade · ~25%</div>
+      <div class="blk"><span class="bl">Looks like</span><span class="bt">A debut breaks issue price (esp. <b>OpenAI &lt; $852B</b>); HYG breaks / spreads &gt;450–500bps; VIX &gt;30; a circular name (NVDA/ORCL/CRWV) misses.</span></div>
+      <div class="blk"><span class="bl">The book</span><span class="bt">QQQ/SOXX put spreads (dated past catalyst), SFTBY short (concentrated proxy), VIX call spreads, daily inverse ETFs <b>for sharp days only</b>. Trim longs, raise cash.</span></div>
+      <div class="blk"><span class="bl">Maximize</span><span class="bt">Highest-conviction short = the <b>concentrated proxy</b> (SFTBY) on an OpenAI down-mark + semis (SOXX). Convexity (VIX) pays most in the cascade.</span></div>
+      <div class="blk"><span class="bl">Trap</span><span class="bt">Being early. The melt-up can outlast a naked short — that's why everything here is defined-risk or time-boxed.</span></div>
+    </div>
+  </div>
+
+  <!-- POSITION LEDGER -->
+  <h2><span class="num">04 /</span> Position Ledger — what's held, what's flipped</h2>
+  <p class="lead tight">The core distinction: <span class="tag hold">HOLD</span> = carried through the sequence; <span class="tag flip">FLIP</span> = entered for one event and closed. Hedges and quality longs are held; event trades and daily-decay instruments are flipped.</p>
+  <div class="scrollx">
+  <table class="tbl">
+    <tr><th>Instrument</th><th>Role</th><th>Best in</th><th>Entry window</th><th>Hold / Flip</th><th>Size logic</th><th>Exit / escape</th></tr>
+    <tr><td>QQQ put debit spread<br><span style="font-weight:400;color:var(--dim)">Oct/Nov exp</span></td><td class="role">Portfolio insurance / convexity</td><td><span class="tag all">ALL</span></td><td>NOW (VIX ~15)</td><td><span class="tag hold">HOLD</span> roll</td><td>1–2% of book in premium</td><td>Bank on a VIX spike, re-strike lower; expiry = max loss known up front</td></tr>
+    <tr><td>VIX call spread<br><span style="font-weight:400;color:var(--dim)">Sep/Oct</span></td><td class="role">Tail convexity</td><td><span class="tag bear">BEAR</span></td><td>NOW while vol low</td><td><span class="tag hold">HOLD</span> roll monthly</td><td>0.5–1% premium</td><td>Monetize into a &gt;30 spike; let lapse if calm</td></tr>
+    <tr><td>Cash reserve</td><td class="role">Dry powder / optionality</td><td><span class="tag all">ALL</span></td><td>Build now</td><td><span class="tag hold">HOLD</span></td><td>15–30%</td><td>This <i>is</i> the escape liquidity — deploy at capitulation or a strong-debut dip</td></tr>
+    <tr><td>SATS <span class="tag s">SPCX</span></td><td class="role">Real SPCX stakeholder long</td><td><span class="tag bull">BULL</span></td><td>Pre–12 Jun</td><td><span class="tag hold">HOLD</span> trim into strength</td><td>small single-name</td><td>Stop under pre-debut base</td></tr>
+    <tr><td>SPCX inclusion front-run <span class="tag s">SPCX</span></td><td class="role">Event alpha (passive demand)</td><td><span class="tag bull">BULL</span></td><td>Accumulate ~late Jun (before 15-td mark)</td><td><span class="tag flip">FLIP</span></td><td>tactical</td><td>Exit on ~early-Jul inclusion; cut if it breaks $135</td></tr>
+    <tr><td>SFTBY (long) <span class="tag o">OAI</span></td><td class="role">OpenAI beta proxy — run-up</td><td><span class="tag bull">BULL</span></td><td>On AI-IPO momentum, pre-OpenAI S-1</td><td><span class="tag flip">FLIP</span></td><td>tactical</td><td><b>Sell the news</b> before OpenAI prices; stop if sentiment rolls</td></tr>
+    <tr><td>SFTBY put spread / short <span class="tag o">OAI</span></td><td class="role">Concentrated OpenAI short</td><td><span class="tag bear">BEAR</span></td><td>~Aug S-1, or on a down-mark</td><td><span class="tag hold">HOLD</span> into debut</td><td>defined-risk</td><td>Cover into the cascade / capitulation</td></tr>
+    <tr><td>AMZN (long) <span class="tag a">ANTH</span></td><td class="role">Anthropic quality proxy</td><td><span class="tag bull">BULL</span> <span class="tag all">CHOP</span></td><td>Into Anthropic window (Sep–Oct)</td><td><span class="tag hold">HOLD</span> (core name)</td><td>core; <b>diluted</b> — moves on AWS too</td><td>Trim on AMBER; it's a read-through, not a pure bet</td></tr>
+    <tr><td>SOXX put spread</td><td class="role">Semis / circular-web short</td><td><span class="tag bear">BEAR</span></td><td>On a circular-deal miss (NVDA/ORCL/CRWV)</td><td><span class="tag hold">HOLD</span> into fall</td><td>defined-risk</td><td>Expiry / profit-take</td></tr>
+    <tr><td>SQQQ · 7568 <span style="font-weight:400;color:var(--dim)">−3×/−2× NDX</span></td><td class="role">Tactical crash hedge</td><td><span class="tag bear">BEAR</span></td><td>Only on RED days / index breaks</td><td><span class="tag flip">FLIP</span> days only</td><td>small, time-boxed</td><td><b>Hard time-stop</b> — daily reset decays; never a hold</td></tr>
+    <tr><td>7347 <span style="font-weight:400;color:var(--dim)">−2× Samsung</span></td><td class="role">Memory/HBM tactical</td><td><span class="tag bear">BEAR</span></td><td>On Samsung/HBM stress</td><td><span class="tag flip">FLIP</span> days</td><td>small</td><td>time-stop; decay</td></tr>
+    <tr><td>AI-infra basket <span style="font-weight:400;color:var(--dim)">AVGO/ORCL/VRT</span></td><td class="role">Beta long</td><td><span class="tag bull">BULL</span></td><td>If ladder GREEN</td><td><span class="tag hold">HOLD</span> / trim</td><td>core-ish</td><td>Rotate to cash on AMBER</td></tr>
+  </table>
+  </div>
+
+  <!-- PER IPO -->
+  <h2><span class="num">05 /</span> Per-Debut Plays</h2>
+
+  <div class="ipo s">
+    <div class="ih"><span class="nm">SpaceX · SPCX</span><span class="dt">price 11 Jun · trade 12 Jun · $135 fixed · lockup ~Sep 10–Dec 9 · earnings ~Sep</span></div>
+    <div class="row">
+      <div class="cell up"><span class="cl">▲ If it works</span>SATS held into the debut; <b>flip</b> the Nasdaq-100 inclusion front-run (~early Jul). Don't chase the day-1 print — add on the first orderly pullback that holds $135.</div>
+      <div class="cell dn"><span class="cl">▼ If it breaks</span>Issue-price break within days = the tape's "top-is-in." <b>Flip</b> SQQQ/7568 for the down days, lean on standing QQQ puts. Watch TSLA for the capital-diversion fade (low-conviction).</div>
+    </div>
+  </div>
+
+  <div class="ipo o">
+    <div class="ih"><span class="nm">OpenAI</span><span class="dt">public S-1 ~Aug · list Q4 (~Sep–Nov) · vs $852B mark · proxy: SFTBY</span></div>
+    <div class="row">
+      <div class="cell up"><span class="cl">▲ If it works</span>Prices at/above $852B toward $1T → private marks validated → ride beta and the SFTBY run-up, then <b>sell into</b> the listing.</div>
+      <div class="cell dn"><span class="cl">▼ If it breaks</span><b>The cascade node.</b> Below the last mark → SFTBY short (the only concentrated proxy) + QQQ/SOXX puts + VIX. This is the trade the whole hedge book exists for.</div>
+    </div>
+  </div>
+
+  <div class="ipo a">
+    <div class="ih"><span class="nm">Anthropic</span><span class="dt">confidential filed 1 Jun · public S-1 TBD · target ~Oct · ~$965B · proxy: AMZN/GOOGL</span></div>
+    <div class="row">
+      <div class="cell up"><span class="cl">▲ If it works</span>The quality long: cheapest multiple (~20×), profitable-path, enterprise-led. No pure-play — express via <b>AMZN</b> (biggest stakeholder), held through the debut.</div>
+      <div class="cell dn"><span class="cl">▼ If it breaks</span>If even the strongest name down-marks → broad de-risk (HYG puts, QQQ puts), trim AI-infra. No clean single-name short exists, so hedge at the index/credit level.</div>
+    </div>
+  </div>
+
+  <!-- MAXIMIZE -->
+  <h2><span class="num">06 /</span> Alpha Ideas — Maximizing Either Way</h2>
+  <p class="lead tight">Beyond hedging: the asymmetric, event-driven ideas that pay regardless of regime if you time them.</p>
+  <div class="cards">
+    <div class="card"><h4>Nasdaq-100 inclusion front-run</h4><p>A company this size becomes 100-eligible after <b>~15 trading days</b>. Passive funds must buy at inclusion. Accumulate before the mark, flip into the forced bid.<span class="when">~late Jun entry → ~early Jul exit · SPCX</span></p></div>
+    <div class="card"><h4>Sell-the-news on proxies</h4><p>Liquid proxies (SFTBY for OpenAI) run <b>into</b> the hype and fade on the actual print. Own the run-up, distribute before the debit window — don't hold through the event.<span class="when">pre-debut accumulate → exit at listing</span></p></div>
+    <div class="card"><h4>The quality pair</h4><p>Long Anthropic-proxy (AMZN) vs OpenAI-downside (SFTBY put): cheap+profitable vs pricey+burning. Market-neutral-ish bet on <b>dispersion</b>, not direction.<span class="when">~Aug (on OpenAI S-1) → into the debuts</span></p></div>
+    <div class="card"><h4>Lockup-expiry supply short</h4><p>SpaceX insiders/VCs unlock ~Sep 10–Dec 9. Known forward supply into a thin float = a datable short-dated put window as the unlock approaches.<span class="when">~late Aug position · SPCX</span></p></div>
+    <div class="card"><h4>Day-1 pop discipline</h4><p>The single highest-EV "trade" is often <b>not</b> chasing the open. Thin-float pops mean-revert; let the first euphoria flush, then decide. Patience as alpha.<span class="when">12 Jun &amp; each debut day</span></p></div>
+    <div class="card"><h4>Convexity bought cheap</h4><p>With VIX ~15, fall optionality is on sale. Buying it <b>before</b> the collision (not during) is the difference between a hedge that pays and one you chase. Carry it as the plan's spine.<span class="when">NOW → roll through Q4</span></p></div>
+  </div>
+
+  <!-- RISK & ESCAPE -->
+  <h2><span class="num">07 /</span> Risk Register &amp; Escape Plans</h2>
+  <div class="flat">
+    <div class="ft">◆ Master "get-flat" trigger</div>
+    <p>If the Dashboard ladder hits <b>RED</b> — i.e. <b>HYG breaking down (credit) AND VIX &gt;30 together</b>, or ≥4 stress gauges bearish — cut beta to the core, let only defined-risk hedges and convexity run, and stop adding new longs. Credit + vol cracking <i>together</i> is the signal that the IPOs have turned from thermometer into accelerant.</p>
+  </div>
+  <div class="risk"><div class="rt">Being early on the bear</div><div class="rb">The melt-up can outlast a naked short. <b>Escape built-in:</b> every bearish line here is a put <i>spread</i> (capped cost) or a time-boxed daily ETF — never a naked short you must defend.</div></div>
+  <div class="risk"><div class="rt">Daily-ETF decay</div><div class="rb">SQQQ/7568/7347/7515 reset daily and bleed in chop. <b>Escape:</b> hard time-stop measured in days; if the down-move doesn't come fast, you're out — they are not holds, ever.</div></div>
+  <div class="risk"><div class="rt">Proxy slippage</div><div class="rb">AMZN/GOOGL move on far more than Anthropic; SFTBY is leveraged and gappy. <b>Escape:</b> size for the dilution, treat them as read-throughs, and don't confuse a proxy bet for a pure one.</div></div>
+  <div class="risk"><div class="rt">Liquidity / access</div><div class="rb">HK inverse ETFs and pre-IPO secondaries are thin and can gap. <b>Escape:</b> keep them small, tactical, and never the core of the hedge — the index put spreads are the backbone.</div></div>
+  <div class="risk esc"><div class="rt">▲ The reload escape (upside)</div><div class="rb">The cash reserve is an active position: a strong debut that dips, or a RED capitulation, is when dry powder earns its keep. Plan the buy <i>before</i> the panic, not during.</div></div>
+
+  <!-- EXPECTATIONS -->
+  <h2><span class="num">08 /</span> Expectations — base rates, honestly</h2>
+  <p class="body"><b>Most likely path = chop/rotation</b> (~45–50%), not a clean melt-up or clean cascade. Plan for event-by-event trading, not a single regime bet. SpaceX <b>probably pops</b> (thin float + fixed price) but a pop is not a durable hold — separate the two.</p>
+  <p class="body"><b>The real systemic test is OpenAI vs its $852B mark in Q4</b> — that, not SpaceX's debut, is the date the whole hedge book is built around. And the most probable <i>crack</i> trigger isn't an IPO at all: it's a circular-deal name (NVDA/Oracle/CoreWeave) missing or credit spreads widening, with the IPOs as the accelerant. Watch the ladder, keep convexity cheap and carried, keep powder dry, and let the events — not your priors — size each move.</p>
+
+  <footer>
+    <div class="mono">CROSS-REFS → Live regime on the <b>Dashboard</b>; dates on the <b>Calendar</b>; per-name detail in the three <b>S-1 briefs</b>. This page synthesizes them into one plan.</div>
+    <div style="margin-top:8px">Scenario framework as of 5 Jun 2026, built on reported/secondary data (debuts haven't priced). Conditional ideas and defined-risk structures, not a recommendation — size to your own risk and verify against the filings.</div>
+  </footer>
+
+</div>
+</body>
+</html>
