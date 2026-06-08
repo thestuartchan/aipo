@@ -60,6 +60,12 @@
   .w .wth{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mut);margin-top:5px}
   .w .toggle{cursor:pointer;user-select:none;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:var(--txt);background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:4px 10px;display:inline-block;margin-top:2px}
   .editnote{font-size:12px;color:var(--dim);margin-top:9px;font-style:italic}
+  .updbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+  .updbar select,.updbar input{font-family:'IBM Plex Mono',monospace;font-size:13px;background:#0a0f15;border:1px solid var(--line);color:var(--txt);padding:6px 9px;border-radius:6px}
+  .updbar input{flex:1;min-width:170px}
+  .updbar button{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;background:var(--blu);color:#04101f;border:none;padding:7px 14px;border-radius:6px;cursor:pointer}
+  .updbar button:hover{filter:brightness(1.1)}
+  .ust{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--dim);width:100%}
 
   /* events */
   .ev{display:grid;grid-template-columns:120px 1fr;border:1px solid var(--line);background:var(--panel);border-radius:9px;margin-bottom:9px;overflow:hidden}
@@ -128,7 +134,13 @@
 
   <!-- WATCH -->
   <h2><span class="num">01 /</span> What to Watch — 4 signals, nothing else</h2>
-  <p class="lead">Tap any number to update it from your broker. State and the overall regime recompute automatically. The point isn't precision — it's whether <b>two or three of these agree</b> before you act.</p>
+  <p class="lead">Tap any number to update it by hand, or hit <b>Update signals</b> for a 1-click live pull. State and the directional regime recompute automatically — the point isn't precision, it's whether <b>two or three agree</b> before you act.</p>
+  <div class="updbar">
+    <select id="provSel"><option value="twelvedata">Twelve Data</option><option value="finnhub">Finnhub</option></select>
+    <input id="apiKey" type="text" placeholder="free API key (same one as the Dashboard)">
+    <button id="updBtn">↻ Update signals</button>
+    <span class="ust" id="updStatus">Manual by default — paste a free key for 1-click updates. VIX &amp; 10-yr pull most reliably on Twelve Data; HYG &amp; breadth work on both.</span>
+  </div>
   <div class="watch">
     <div class="w" id="w-vix">
       <div class="wtop"><span class="wn">VIX — fear</span><span class="wstate">—</span></div>
@@ -258,31 +270,71 @@
   function setWState(card,state){
     card.className='w '+state;
     var tag=card.querySelector('.wstate'); tag.className='wstate '+state; tag.textContent=state.toUpperCase();
-    return state;
   }
+  function setVal(k,v){ var el=document.querySelector('[data-k="'+k+'"]'); if(el){ el.textContent=v; store.set('simp_'+k,v); } }
+  function setBreadth(s){ var b=document.getElementById('brToggle'); b.setAttribute('data-state',s); b.textContent=s.toUpperCase(); store.set('simp_breadth',s); }
+
   function compute(){
-    var worst=0;
+    var score=0;
     ['vix','hyg','yield'].forEach(function(k){
       var card=document.getElementById('w-'+k);
-      var el=card.querySelector('[data-k="'+k+'"]');
-      var st=stateOf(parseNum(el.textContent),CFG[k].calm,CFG[k].stress,CFG[k].w);
-      setWState(card,st); worst=Math.max(worst,order[st]);
+      var st=stateOf(parseNum(card.querySelector('[data-k="'+k+'"]').textContent),CFG[k].calm,CFG[k].stress,CFG[k].w);
+      setWState(card,st);
+      score += st==='calm'?1:(st==='stress'?-1:0);
     });
-    // breadth toggle
-    var br=document.getElementById('brToggle');
-    var brState=br.getAttribute('data-state')||'narrow';
+    // breadth: broad = bullish (+1, green), narrow = bearish (-1, red)
+    var brState=document.getElementById('brToggle').getAttribute('data-state')||'narrow';
     var bcard=document.getElementById('w-breadth');
-    var bs = brState==='broad'?'calm':'caution';
-    setWState(bcard,bs); worst=Math.max(worst,order[bs]);
-    // regime
-    var reg=rev[worst];
+    setWState(bcard, brState==='broad'?'calm':'stress');
+    bcard.querySelector('.wstate').textContent = brState==='broad'?'BULLISH':'BEARISH';
+    score += brState==='broad'?1:-1;
+    // directional regime from net score (range -4..+4)
+    var lvl,label;
+    if(score>=2){ lvl='calm'; label='RISK-ON · BULL LEAN'; }
+    else if(score<=-2){ lvl='stress'; label='RISK-OFF · BEAR LEAN'; }
+    else { lvl='caution'; label='NEUTRAL · MIXED'; }
     var badge=document.getElementById('regBadge');
-    badge.className='reg '+reg; badge.textContent='REGIME: '+reg.toUpperCase();
-    var notes={calm:'Signals aligned calm — a clean event print is a green light to deploy a starter.',
-               caution:'Mixed — stay mostly cash; act only if an event and 2–3 signals agree.',
-               stress:'Risk-off — being flat IS your protection. At most one defined-risk spread.'};
-    document.getElementById('regNote').textContent=notes[reg];
+    badge.className='reg '+lvl; badge.textContent='REGIME: '+label;
+    var notes={
+      calm:'Signals lean risk-on. A clean event print is a green light to deploy a bull starter — keep most powder dry.',
+      caution:'Mixed signals. Stay mostly cash; act only if an event and 2–3 signals agree.',
+      stress:'Signals lean risk-off. Being flat is your protection. Express downside only via one defined-risk spread, if at all.'
+    };
+    document.getElementById('regNote').textContent=notes[lvl]+' (net signal score: '+(score>=0?'+':'')+score+' of ±4)';
   }
+
+  // ---- 1-click live update (shares the dashboard's API key) ----
+  var provSel=document.getElementById('provSel'), apiKey=document.getElementById('apiKey'), updStatus=document.getElementById('updStatus');
+  if(apiKey){ apiKey.value=store.get('drd_key')||''; }
+  if(provSel){ var pv=store.get('drd_provider'); if(pv) provSel.value=pv; }
+  function setStatus(m){ if(updStatus) updStatus.textContent=m; }
+  function fetchQuote(provider,key,sym){
+    var isFin=provider==='finnhub';
+    var url=isFin ? 'https://finnhub.io/api/v1/quote?symbol='+encodeURIComponent(sym)+'&token='+encodeURIComponent(key)
+                  : 'https://api.twelvedata.com/quote?symbol='+encodeURIComponent(sym)+'&apikey='+encodeURIComponent(key);
+    return fetch(url).then(function(r){return r.json();}).then(function(j){
+      if(isFin){ return (j&&typeof j.c==='number'&&j.c>0)?{price:j.c,pct:(typeof j.dp==='number'?j.dp:null)}:null; }
+      return (j&&j.close!==undefined&&j.status!=='error')?{price:parseFloat(j.close),pct:(j.percent_change!==undefined?parseFloat(j.percent_change):null)}:null;
+    }).catch(function(){return null;});
+  }
+  function updateAll(){
+    if(!apiKey||!apiKey.value.trim()){ setStatus('add a free API key first (the same one works on the Dashboard)'); return; }
+    var key=apiKey.value.trim(), provider=provSel.value;
+    store.set('drd_key',key); store.set('drd_provider',provider);
+    setStatus('updating…');
+    var vixSym=provider==='finnhub'?'^VIX':'VIX', tnxSym=provider==='finnhub'?'^TNX':'TNX';
+    Promise.all([fetchQuote(provider,key,vixSym),fetchQuote(provider,key,'HYG'),fetchQuote(provider,key,'IWM'),fetchQuote(provider,key,'SPY'),fetchQuote(provider,key,tnxSym)])
+    .then(function(r){
+      var vix=r[0],hyg=r[1],iwm=r[2],spy=r[3],tnx=r[4],done=[],miss=[];
+      if(vix){setVal('vix',vix.price.toFixed(2));done.push('VIX');}else miss.push('VIX');
+      if(hyg){setVal('hyg',hyg.price.toFixed(2));done.push('HYG');}else miss.push('HYG');
+      if(tnx){var y=tnx.price>20?tnx.price/10:tnx.price;setVal('yield',y.toFixed(2));done.push('10yr');}else miss.push('10yr');
+      if(iwm&&spy&&iwm.pct!=null&&spy.pct!=null){setBreadth((iwm.pct-spy.pct)>=0?'broad':'narrow');done.push('breadth');}else miss.push('breadth');
+      compute();
+      setStatus('updated: '+(done.join(', ')||'none')+(miss.length?' · still manual: '+miss.join(', '):'')+' · '+new Date().toLocaleTimeString());
+    });
+  }
+  var updBtn=document.getElementById('updBtn'); if(updBtn) updBtn.addEventListener('click',updateAll);
 
   // restore + wire editable values
   ['vix','hyg','yield'].forEach(function(k){
