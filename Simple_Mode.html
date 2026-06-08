@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simple Mode · Mega-IPO Watch & Trade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070b10;--panel:#0e151d;--panel2:#131d27;--line:#1f2c38;
+    --txt:#e8eff4;--mut:#8ba0ad;--dim:#56697a;
+    --blu:#58a6ff;--grn:#3fb950;--amber:#ffb000;--red:#f85149;
+    --spcx:#ffb000;--oai:#2dd4bf;--anth:#a78bfa;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--txt);font-family:'IBM Plex Sans',sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased;
+    background-image:linear-gradient(rgba(88,166,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(88,166,255,.02) 1px,transparent 1px);background-size:44px 44px}
+  .wrap{max-width:1000px;margin:0 auto;padding:24px 18px 80px}
+  b{color:var(--txt);font-weight:600}
+
+  .nav{display:flex;align-items:center;gap:8px;margin-bottom:16px;font-family:'IBM Plex Mono',monospace;flex-wrap:wrap}
+  .navbrand{font-size:13px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-right:4px}
+  .navlink{font-size:16px;letter-spacing:.5px;padding:7px 14px;border-radius:8px;border:1px solid var(--line);color:var(--mut);text-decoration:none;background:var(--panel)}
+  .navlink:hover{color:var(--txt);border-color:var(--dim)}
+  .navlink.active{color:#04101f;background:var(--blu);border-color:var(--blu);font-weight:700}
+
+  header{border:1px solid var(--line);background:linear-gradient(155deg,var(--panel),#080c11);border-radius:11px;padding:20px;position:relative;overflow:hidden}
+  header::before{content:"";position:absolute;inset:0;background:radial-gradient(620px 130px at 6% -10%,rgba(88,166,255,.10),transparent 70%);pointer-events:none}
+  .kicker{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:3px;color:var(--dim);text-transform:uppercase}
+  h1{font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:700;letter-spacing:.5px;margin:8px 0 6px}
+  h1 span{color:var(--blu)}
+  .sub{color:var(--mut);font-size:15.5px;max-width:86ch}
+  .regwrap{display:flex;align-items:center;gap:12px;margin-top:15px;flex-wrap:wrap}
+  .reg{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;letter-spacing:1px;padding:7px 14px;border-radius:7px;border:1px solid}
+  .reg.calm{color:var(--grn);border-color:rgba(63,185,80,.4);background:rgba(63,185,80,.08)}
+  .reg.caution{color:var(--amber);border-color:rgba(255,176,0,.4);background:rgba(255,176,0,.08)}
+  .reg.stress{color:var(--red);border-color:rgba(248,81,73,.4);background:rgba(248,81,73,.08)}
+  .regnote{font-size:13.5px;color:var(--dim)}
+
+  h2{font-family:'IBM Plex Mono',monospace;font-size:15px;letter-spacing:2.5px;color:var(--blu);text-transform:uppercase;margin:34px 0 13px;display:flex;align-items:center;gap:10px}
+  h2::before{content:"";width:7px;height:7px;background:var(--blu);transform:rotate(45deg);flex:none}
+  h2 .num{color:var(--dim);font-weight:400}
+  .lead{color:var(--mut);font-size:15px;margin-bottom:14px;max-width:90ch}
+  p.body{color:var(--mut);font-size:15px;margin-bottom:11px;max-width:92ch}
+
+  /* watch */
+  .watch{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+  .w{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:14px;border-left:3px solid var(--dim)}
+  .w.calm{border-left-color:var(--grn)} .w.caution{border-left-color:var(--amber)} .w.stress{border-left-color:var(--red)}
+  .w .wtop{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .w .wn{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:var(--txt)}
+  .w .wv{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;color:var(--txt);outline:none;border-bottom:1px dashed transparent;cursor:text}
+  .w .wv:hover,.w .wv:focus{border-bottom-color:var(--dim)}
+  .w .wstate{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;padding:2px 7px;border-radius:4px}
+  .w .wstate.calm{background:rgba(63,185,80,.14);color:var(--grn)} .w .wstate.caution{background:rgba(255,176,0,.14);color:var(--amber)} .w .wstate.stress{background:rgba(248,81,73,.14);color:var(--red)}
+  .w .wmeta{font-size:12.5px;color:var(--dim);margin-top:7px}
+  .w .wth{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mut);margin-top:5px}
+  .w .toggle{cursor:pointer;user-select:none;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:var(--txt);background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:4px 10px;display:inline-block;margin-top:2px}
+  .editnote{font-size:12px;color:var(--dim);margin-top:9px;font-style:italic}
+
+  /* events */
+  .ev{display:grid;grid-template-columns:120px 1fr;border:1px solid var(--line);background:var(--panel);border-radius:9px;margin-bottom:9px;overflow:hidden}
+  .ev .ed{background:var(--panel2);padding:12px 13px;border-right:1px solid var(--line);font-family:'IBM Plex Mono',monospace}
+  .ev .edn{font-size:14px;font-weight:700} .ev.s .edn{color:var(--spcx)} .ev.o .edn{color:var(--oai)} .ev.a .edn{color:var(--anth)}
+  .ev .edd{font-size:11.5px;color:var(--dim);margin-top:3px}
+  .ev .ec{padding:12px 14px;font-size:14px;color:var(--mut)} .ev .ec b{color:var(--txt)}
+
+  /* trade cards */
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+  .card{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:15px;border-top:3px solid var(--dim)}
+  .card.def{border-top-color:var(--blu)} .card.bull{border-top-color:var(--grn)} .card.bear{border-top-color:var(--red)} .card.alpha{border-top-color:var(--amber)}
+  .card h3{font-family:'IBM Plex Mono',monospace;font-size:14px;letter-spacing:.5px;margin-bottom:8px}
+  .card.def h3{color:var(--blu)} .card.bull h3{color:var(--grn)} .card.bear h3{color:var(--red)} .card.alpha h3{color:var(--amber)}
+  .card .line{font-size:13.5px;color:var(--mut);padding:3px 0 3px 64px;position:relative}
+  .card .line .k{position:absolute;left:0;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);top:5px}
+  .card .line b{color:var(--txt)}
+
+  .tree{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:6px 0}
+  .tn{padding:11px 16px;border-bottom:1px solid var(--line);font-size:14.5px;color:var(--mut)}
+  .tn:last-child{border-bottom:none}
+  .tn .if{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.5px;color:var(--blu);display:block;margin-bottom:3px}
+  .tn b{color:var(--txt)}
+
+  .avoid{border:1px solid rgba(248,81,73,.3);background:rgba(248,81,73,.04);border-radius:9px;padding:6px 0}
+  .av{padding:10px 16px;border-bottom:1px solid rgba(248,81,73,.12);font-size:14px;color:var(--mut)}
+  .av:last-child{border-bottom:none}
+  .av b{color:var(--txt)}
+  .av .x{color:var(--red);font-weight:700;margin-right:7px}
+
+  .ref{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+  .rc{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:13px 15px}
+  .rc h4{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--blu);margin-bottom:6px;letter-spacing:.5px}
+  .rc p{font-size:13.5px;color:var(--mut)} .rc b{color:var(--txt)}
+
+  footer{margin-top:32px;border-top:1px solid var(--line);padding-top:16px;font-size:13px;color:var(--dim)}
+  footer .mono{font-family:'IBM Plex Mono',monospace;color:var(--mut)}
+
+  @media (max-width:720px){.watch,.cards,.ref{grid-template-columns:1fr}.ev{grid-template-columns:1fr}.ev .ed{border-right:none;border-bottom:1px solid var(--line)}.card .line{padding-left:0}.card .line .k{position:static;display:block;margin-bottom:2px}h1{font-size:23px}}
+  @media print{body{background:#fff;color:#000;background-image:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="nav">
+    <span class="navbrand">IPO Watch</span>
+    <a class="navlink" href="index.html">Dashboard</a>
+    <a class="navlink active">Simple</a>
+    <a class="navlink" href="MegaIPO_Catalyst_Calendar.html">Calendar</a>
+    <a class="navlink" href="SPCX_S1_Briefing.html">SpaceX S-1</a>
+    <a class="navlink" href="OpenAI_S1_Briefing.html">OpenAI S-1</a>
+    <a class="navlink" href="Anthropic_S1_Briefing.html">Anthropic S-1</a>
+    <a class="navlink" href="Playbook.html">Playbook</a>
+  </div>
+
+  <header>
+    <div class="kicker">Simple Mode · for an all-cash start</div>
+    <h1>Watch a few signals. <span>Deploy into events.</span></h1>
+    <div class="sub">You're in cash, so cash is the position. You don't need to hedge a book you don't own — any option you buy now is a <b>bet</b>, not insurance. The whole job: watch 4 signals, wait for the 3 events, and act only when things line up — with one or two clean, defined-risk positions.</div>
+    <div class="regwrap">
+      <span class="reg caution" id="regBadge">REGIME: —</span>
+      <span class="regnote" id="regNote">Computed from the four signals below. Tap a value to edit it.</span>
+    </div>
+  </header>
+
+  <!-- WATCH -->
+  <h2><span class="num">01 /</span> What to Watch — 4 signals, nothing else</h2>
+  <p class="lead">Tap any number to update it from your broker. State and the overall regime recompute automatically. The point isn't precision — it's whether <b>two or three of these agree</b> before you act.</p>
+  <div class="watch">
+    <div class="w" id="w-vix">
+      <div class="wtop"><span class="wn">VIX — fear</span><span class="wstate">—</span></div>
+      <div><span class="wv" contenteditable data-k="vix">18.76</span></div>
+      <div class="wmeta">The mood. Spiking = wait / don't chase. Settling = calmer entry.</div>
+      <div class="wth">calm &lt;17 · caution 17–25 · stress &gt;25</div>
+    </div>
+    <div class="w" id="w-hyg">
+      <div class="wtop"><span class="wn">HYG — credit</span><span class="wstate">—</span></div>
+      <div><span class="wv" contenteditable data-k="hyg">79</span></div>
+      <div class="wmeta"><b>The real tell.</b> Equity vol alone is a wobble; credit breaking down is the systemic signal.</div>
+      <div class="wth">calm &gt;79 · caution 76–79 · stress &lt;76 (price)</div>
+    </div>
+    <div class="w" id="w-yield">
+      <div class="wtop"><span class="wn">US 10-yr yield</span><span class="wstate">—</span></div>
+      <div><span class="wv" contenteditable data-k="yield">4.69</span><span style="font-size:15px;color:var(--dim)">%</span></div>
+      <div class="wmeta">Rising yields pressure tech directly — half of the June selloff. Falling = relief.</div>
+      <div class="wth">calm &lt;4.5 · caution 4.5–4.8 · stress &gt;4.8</div>
+    </div>
+    <div class="w" id="w-breadth">
+      <div class="wtop"><span class="wn">Breadth — internals</span><span class="wstate">—</span></div>
+      <div><span class="toggle" id="brToggle">NARROW</span></div>
+      <div class="wmeta">Tap to flip. Small-caps (Russell) lagging mega-cap tech = fragile, narrow bounce.</div>
+      <div class="wth">BROAD = healthy · NARROW = fragile</div>
+    </div>
+  </div>
+  <div class="editnote">Edits save in your browser. There's no live feed here on purpose — four numbers you glance at once a day is the whole maintenance burden.</div>
+
+  <!-- EVENTS -->
+  <h2><span class="num">02 /</span> The 3 Events — your only real decision points</h2>
+  <div class="ev s">
+    <div class="ed"><div class="edn">SpaceX</div><div class="edd">12 JUN</div></div>
+    <div class="ec">First debut = the risk-appetite read. <b>Holds &amp; calm</b> → green light to deploy a bull starter. <b>Breaks $135 + credit cracks</b> → stay cash. Don't chase the day-1 pop either way.</div>
+  </div>
+  <div class="ev o">
+    <div class="ed"><div class="edn">OpenAI</div><div class="edd">S-1 ~AUG · list Q4</div></div>
+    <div class="ec">First audited AI financials. <b>Strong</b> → lean bull. <b>Burn-shock / lists below $852B mark</b> → the cascade risk; that's when (and only when) a single bear spread earns its place.</div>
+  </div>
+  <div class="ev a">
+    <div class="ed"><div class="edn">Anthropic</div><div class="edd">~OCT</div></div>
+    <div class="ec">The quality name (cheapest multiple, profitable path). If it lists well, the clean long is <b>AMZN</b> (biggest stakeholder). If even this one down-marks, stay defensive.</div>
+  </div>
+
+  <!-- WHAT TO TRADE -->
+  <h2><span class="num">03 /</span> What to Trade — the whole menu</h2>
+  <p class="lead">Four buckets, 2–3 clean options in each. Most of the time the answer is still the first bucket. Pick <b>one</b> option from a bucket — don't stack them.</p>
+  <div class="cards">
+    <div class="card def">
+      <h3>◆ DEFAULT — Cash & equivalents</h3>
+      <div class="line"><span class="k">SGOV/BIL</span>T-bill ETFs — trade in-account, sell same day, ~3.7%. The path of least resistance.</div>
+      <div class="line"><span class="k">MMF</span>Your broker's <b>government</b> money-market fund — auto-sweep yield, instant to trade from.</div>
+      <div class="line"><span class="k">USFR</span>Floating-rate Treasury ETF — yield resets up if rates keep rising. Same near-zero risk.</div>
+      <div class="line"><span class="k">Note</span>All liquid, Treasury-backed, stable. Pick by convenience — this is the default until signals + an event align.</div>
+    </div>
+    <div class="card bull">
+      <h3>▲ BULL LEAN — Participate, no leverage</h3>
+      <div class="line"><span class="k">AMZN</span>Anthropic's biggest backer + a real profitable business. Cleanest single-name proxy. Shares, hold months.</div>
+      <div class="line"><span class="k">QQQ / SMH</span>Broad Nasdaq or a semis ETF — the simplest bull with no single-name risk. Shares.</div>
+      <div class="line"><span class="k">Call spread</span>Want more punch with capped loss? A QQQ or AMZN <b>call debit spread</b> — defined-risk bull (options L2).</div>
+      <div class="line"><span class="k">Size</span>Starter + add on dips. Shares = limit orders.</div>
+    </div>
+    <div class="card bear">
+      <h3>▼ BEAR LEAN — Defined-risk only</h3>
+      <div class="line"><span class="k">QQQ put</span>One QQQ put debit spread, <b>Dec 18</b> — broad-tech downside, max loss = premium. Single limit at mid.</div>
+      <div class="line"><span class="k">SOXX put</span>Semis put spread — more targeted at the circular AI-capex epicenter; higher beta to the bubble.</div>
+      <div class="line"><span class="k">More cash</span>The zero-cost bear: just hold more cash / lighter equity. No position = no loss, no decay.</div>
+      <div class="line"><span class="k">Skip</span>SFTBY single-name short is possible but the ADR is thin — only if you accept wide spreads.</div>
+    </div>
+    <div class="card alpha">
+      <h3>★ EVENT ALPHA — Optional, tactical</h3>
+      <div class="line"><span class="k">Inclusion</span>SPCX Nasdaq-100 front-run: accumulate ~late Jun, sell into the passive bid ~early Jul. Cut if it breaks $135.</div>
+      <div class="line"><span class="k">Sell-news</span>Own a proxy (SFTBY) into the OpenAI run-up, sell <b>before</b> the print. Don't hold through it.</div>
+      <div class="line"><span class="k">Buy-flush</span>Deploy parked cash into a debut-day washout instead of chasing the day-1 pop. Patience as the edge.</div>
+      <div class="line"><span class="k">Size</span>All tactical and optional — none of these are core.</div>
+    </div>
+  </div>
+
+  <!-- DECISION TREE -->
+  <h2><span class="num">04 /</span> The Decision Tree</h2>
+  <div class="tree">
+    <div class="tn"><span class="if">RIGHT NOW (all cash)</span>Do nothing structural. Move cash into <b>SGOV/MMF</b>. Update the 4 signals daily. That's it.</div>
+    <div class="tn"><span class="if">IF regime = CALM and an event prints well</span>Deploy a <b>bull starter</b> (AMZN / infra). Keep most of the powder dry.</div>
+    <div class="tn"><span class="if">IF regime = CAUTION (where we are now)</span>Stay mostly cash. At most, the optional SPCX inclusion trade. No hedges — there's nothing to hedge.</div>
+    <div class="tn"><span class="if">IF regime = STRESS — VIX &gt;25 AND HYG breaking down</span>Stay cash (you're already protected by being flat). If you want to <i>express</i> the downside, <b>one</b> defined-risk put spread — not a basket.</div>
+    <div class="tn"><span class="if">IF a debut prices below its mark + credit cracks</span>That's the real cascade signal. Stay defensive; deploy cash only into genuine capitulation, slowly.</div>
+    <div class="tn"><span class="if">MASTER RULE</span>Act only when <b>2–3 signals agree with an event</b>. Otherwise the trade is "cash." Boring is correct here.</div>
+  </div>
+
+  <!-- AVOID -->
+  <h2><span class="num">05 /</span> What to Avoid</h2>
+  <div class="avoid">
+    <div class="av"><span class="x">✕</span><b>Daily inverse ETFs (SQQQ, 7568, etc.)</b> — they decay in chop and are days-only tools for an active book. Holding one while you "wait and see" just bleeds. Wrong instrument for cash-and-react.</div>
+    <div class="av"><span class="x">✕</span><b>Hedging when you hold no book</b> — a hedge protects existing exposure. From cash it's just a paid directional bet that decays.</div>
+    <div class="av"><span class="x">✕</span><b>Running bull and bear at once</b> — "covering all bases" from cash mostly means losing a little in every direction.</div>
+    <div class="av"><span class="x">✕</span><b>Trading the noise</b> — there are 3 events that matter. Sitting out everything else is a strategy, not a failure.</div>
+  </div>
+
+  <!-- HOW & WHERE -->
+  <h2><span class="num">06 /</span> How &amp; Where — execution quick-reference</h2>
+  <div class="ref">
+    <div class="rc"><h4>Account &amp; approvals</h4><p>Shares + SGOV need a plain brokerage account. The one put spread needs <b>options Level 2</b> (defined-risk spreads). You do <b>not</b> need VIX/index-options approval in this simple version.</p></div>
+    <div class="rc"><h4>Order types</h4><p>Shares/ETFs: limit order. Put spread: a single <b>"put debit spread"</b> ticket at a <b>limit near the mid</b> — never market-order a spread, and never leg in two separate trades.</p></div>
+    <div class="rc"><h4>Where the cash lives</h4><p><b>SGOV/BIL or a government MMF inside the trading account</b> — in a margin account a sale frees buying power same day, so you can redeploy instantly.</p></div>
+    <div class="rc"><h4>Sizing discipline</h4><p>Longs: starter + add on weakness. The put spread: premium = max loss, so size it to a number you'd shrug off. Cash is the rest — and it's a position, not a placeholder.</p></div>
+  </div>
+
+  <footer>
+    <div class="mono">This is the streamlined view. The full <b>Dashboard</b>, <b>Calendar</b>, three <b>S-1 briefs</b> and the detailed <b>Playbook</b> are still there if you want depth — but for an all-cash start, this page is the whole job.</div>
+    <div style="margin-top:8px">Reference framework as of 8 Jun 2026, not a recommendation. Signals are yours to update; sizing and direction are your call.</div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var store={get:function(k){try{return localStorage.getItem(k);}catch(e){return null;}},set:function(k,v){try{localStorage.setItem(k,v);}catch(e){}}};
+  function parseNum(t){return parseFloat((''+t).replace(/[,$~%<>]/g,''));}
+  function stateOf(v,calm,stress,worseWhen){
+    if(isNaN(v)) return 'caution';
+    if(worseWhen==='high') return v<=calm?'calm':(v>=stress?'stress':'caution');
+    return v>=calm?'calm':(v<=stress?'stress':'caution');
+  }
+  var CFG={vix:{calm:17,stress:25,w:'high'},hyg:{calm:79,stress:76,w:'low'},yield:{calm:4.5,stress:4.8,w:'high'}};
+  var order={calm:0,caution:1,stress:2}, rev=['calm','caution','stress'];
+
+  function setWState(card,state){
+    card.className='w '+state;
+    var tag=card.querySelector('.wstate'); tag.className='wstate '+state; tag.textContent=state.toUpperCase();
+    return state;
+  }
+  function compute(){
+    var worst=0;
+    ['vix','hyg','yield'].forEach(function(k){
+      var card=document.getElementById('w-'+k);
+      var el=card.querySelector('[data-k="'+k+'"]');
+      var st=stateOf(parseNum(el.textContent),CFG[k].calm,CFG[k].stress,CFG[k].w);
+      setWState(card,st); worst=Math.max(worst,order[st]);
+    });
+    // breadth toggle
+    var br=document.getElementById('brToggle');
+    var brState=br.getAttribute('data-state')||'narrow';
+    var bcard=document.getElementById('w-breadth');
+    var bs = brState==='broad'?'calm':'caution';
+    setWState(bcard,bs); worst=Math.max(worst,order[bs]);
+    // regime
+    var reg=rev[worst];
+    var badge=document.getElementById('regBadge');
+    badge.className='reg '+reg; badge.textContent='REGIME: '+reg.toUpperCase();
+    var notes={calm:'Signals aligned calm — a clean event print is a green light to deploy a starter.',
+               caution:'Mixed — stay mostly cash; act only if an event and 2–3 signals agree.',
+               stress:'Risk-off — being flat IS your protection. At most one defined-risk spread.'};
+    document.getElementById('regNote').textContent=notes[reg];
+  }
+
+  // restore + wire editable values
+  ['vix','hyg','yield'].forEach(function(k){
+    var el=document.querySelector('[data-k="'+k+'"]');
+    var v=store.get('simp_'+k); if(v!==null) el.textContent=v;
+    el.addEventListener('input',function(){store.set('simp_'+k,el.textContent);compute();});
+    el.addEventListener('blur',function(){compute();});
+  });
+  // breadth toggle
+  var br=document.getElementById('brToggle');
+  var bv=store.get('simp_breadth')||'narrow';
+  br.setAttribute('data-state',bv); br.textContent=bv.toUpperCase();
+  br.addEventListener('click',function(){
+    var ns=br.getAttribute('data-state')==='broad'?'narrow':'broad';
+    br.setAttribute('data-state',ns); br.textContent=ns.toUpperCase();
+    store.set('simp_breadth',ns); compute();
+  });
+  compute();
+})();
+</script>
+</body>
+</html>
