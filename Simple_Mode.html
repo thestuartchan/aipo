@@ -66,6 +66,27 @@
   .updbar button{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;background:var(--blu);color:#04101f;border:none;padding:7px 14px;border-radius:6px;cursor:pointer}
   .updbar button:hover{filter:brightness(1.1)}
   .ust{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--dim);width:100%}
+  .captop{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:13px}
+  .captop label{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--mut)}
+  .captop input{font-family:'IBM Plex Mono',monospace;font-size:15px;background:#0a0f15;border:1px solid var(--line);color:var(--txt);padding:7px 11px;border-radius:6px;width:160px}
+  .atbl{width:100%;border-collapse:collapse;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  .atbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);text-align:left;padding:9px 11px;background:var(--panel2);border-bottom:1px solid var(--line)}
+  .atbl th.r,.atbl td.r{text-align:right}
+  .atbl td{padding:10px 11px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:middle}
+  .atbl tr:last-child td{border-bottom:none}
+  .atbl tr.on td{background:rgba(63,185,80,.05)}
+  .atbl .pn{color:var(--txt);font-weight:600;font-family:'IBM Plex Mono',monospace;font-size:13px}
+  .atbl .pi{font-size:11.5px;color:var(--dim);margin-top:2px}
+  .atbl .pct{font-family:'IBM Plex Mono',monospace;font-size:14px;background:#0a0f15;border:1px solid var(--line);color:var(--txt);padding:5px 7px;border-radius:5px;width:58px;text-align:right}
+  .atbl .amt{font-family:'IBM Plex Mono',monospace;color:var(--txt);font-size:14px}
+  .fit{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.5px;padding:2px 8px;border-radius:5px;white-space:nowrap;display:inline-block;font-weight:700}
+  .fit.go{background:rgba(63,185,80,.14);color:var(--grn);border:1px solid rgba(63,185,80,.45)}
+  .fit.wait{background:rgba(255,176,0,.10);color:var(--amber);border:1px solid rgba(255,176,0,.35)}
+  .fit.always{background:rgba(88,166,255,.12);color:var(--blu);border:1px solid rgba(88,166,255,.4)}
+  .fitnote{font-size:11px;color:var(--dim);margin-top:4px;max-width:230px}
+  .alloctot{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--mut);margin-top:11px}
+  .alloctot b{color:var(--txt)}
+  .alloctot.bad b{color:var(--red)}
 
   /* events */
   .ev{display:grid;grid-template-columns:120px 1fr;border:1px solid var(--line);background:var(--panel);border-radius:9px;margin-bottom:9px;overflow:hidden}
@@ -218,8 +239,23 @@
     </div>
   </div>
 
+  <!-- ALLOCATION CALCULATOR -->
+  <h2><span class="num">04 /</span> Allocation Calculator</h2>
+  <p class="lead">A starting shape for the triple-IPO sleeve — percentages, not dollars. Set your total capital and adjust any weight; amounts recompute live. The <b>regime-fit</b> tag flips with the signals above: green = the current regime suits deploying that play, amber = wait. Cash is always fine to hold.</p>
+  <div class="captop">
+    <label for="capInput">Total capital</label>
+    <input id="capInput" type="text" inputmode="numeric" placeholder="e.g. 10000">
+    <span class="ust" style="width:auto">Stays in your browser. Amounts are in whatever currency you enter.</span>
+  </div>
+  <table class="atbl">
+    <thead><tr><th>Play</th><th>Regime fit (now)</th><th class="r">Weight</th><th class="r">Amount</th></tr></thead>
+    <tbody id="allocBody"></tbody>
+  </table>
+  <div class="alloctot" id="allocTot">Weights total: <b>—</b></div>
+  <p class="editnote">Defaults follow the mapped plan: cash reserve + the OpenAI sleeve sit in SGOV now (~40% dry powder), quality core is built gradually, event sleeves stay small. A bull-lean book — the protection is the cash weight and phasing, not a hedge.</p>
+
   <!-- DECISION TREE -->
-  <h2><span class="num">04 /</span> The Decision Tree</h2>
+  <h2><span class="num">05 /</span> The Decision Tree</h2>
   <div class="tree">
     <div class="tn"><span class="if">RIGHT NOW (all cash)</span>Do nothing structural. Move cash into <b>SGOV/MMF</b>. Update the 4 signals daily. That's it.</div>
     <div class="tn"><span class="if">IF regime = CALM and an event prints well</span>Deploy a <b>bull starter</b> (AMZN / infra). Keep most of the powder dry.</div>
@@ -230,7 +266,7 @@
   </div>
 
   <!-- AVOID -->
-  <h2><span class="num">05 /</span> What to Avoid</h2>
+  <h2><span class="num">06 /</span> What to Avoid</h2>
   <div class="avoid">
     <div class="av"><span class="x">✕</span><b>Daily inverse ETFs (SQQQ, 7568, etc.)</b> — they decay in chop and are days-only tools for an active book. Holding one while you "wait and see" just bleeds. Wrong instrument for cash-and-react.</div>
     <div class="av"><span class="x">✕</span><b>Hedging when you hold no book</b> — a hedge protects existing exposure. From cash it's just a paid directional bet that decays.</div>
@@ -239,7 +275,7 @@
   </div>
 
   <!-- HOW & WHERE -->
-  <h2><span class="num">06 /</span> How &amp; Where — execution quick-reference</h2>
+  <h2><span class="num">07 /</span> How &amp; Where — execution quick-reference</h2>
   <div class="ref">
     <div class="rc"><h4>Account &amp; approvals</h4><p>Shares + SGOV need a plain brokerage account. The one put spread needs <b>options Level 2</b> (defined-risk spreads). You do <b>not</b> need VIX/index-options approval in this simple version.</p></div>
     <div class="rc"><h4>Order types</h4><p>Shares/ETFs: limit order. Put spread: a single <b>"put debit spread"</b> ticket at a <b>limit near the mid</b> — never market-order a spread, and never leg in two separate trades.</p></div>
@@ -301,6 +337,8 @@
       stress:'Signals lean risk-off. Being flat is your protection. Express downside only via one defined-risk spread, if at all.'
     };
     document.getElementById('regNote').textContent=notes[lvl]+' (net signal score: '+(score>=0?'+':'')+score+' of ±4)';
+    var token = lvl==='calm'?'risk-on':(lvl==='stress'?'risk-off':'neutral');
+    updateAllocRegime(token);
   }
 
   // ---- 1-click live update (shares the dashboard's API key) ----
@@ -352,6 +390,61 @@
     br.setAttribute('data-state',ns); br.textContent=ns.toUpperCase();
     store.set('simp_breadth',ns); compute();
   });
+  // ---- Allocation calculator ----
+  var ALLOC=[
+    {id:'cash', name:'Cash reserve',        inst:'SGOV / BIL — dry powder + reload', pct:32, regimes:['risk-on','neutral','risk-off'], always:true, note:'Always fine to hold — raise it in risk-off.'},
+    {id:'oai',  name:'OpenAI sleeve',        inst:'in SGOV now → 9984.T (Aug/Q4)',    pct:8,  regimes:['risk-on'],                       note:'Late & event-timed — deploy into the OpenAI run-up, risk-on only. Sell before the print.'},
+    {id:'amzn', name:'AMZN — core quality',  inst:'shares — biggest Anthropic stake', pct:25, regimes:['risk-on','neutral'],             note:'Build in risk-on / neutral; hold (don\u2019t add) in risk-off.'},
+    {id:'googl',name:'GOOGL — core quality', inst:'shares — AI + Anthropic backer',   pct:15, regimes:['risk-on','neutral'],             note:'Build in risk-on / neutral; hold in risk-off.'},
+    {id:'sats', name:'SATS — SpaceX stake',  inst:'shares — real spectrum stakeholder',pct:12, regimes:['risk-on'],                       note:'Deploy when risk-on confirms, on a post-debut pullback — not the pop.'},
+    {id:'symp', name:'RKLB / ASTS',          inst:'shares — pick one, sympathy beta', pct:8,  regimes:['risk-on'],                       note:'High beta — risk-on only, size to shrug off losing.'}
+  ];
+  function money(n){ return Math.round(n).toLocaleString('en-US'); }
+  function buildAlloc(){
+    var body=document.getElementById('allocBody'); if(!body) return;
+    body.innerHTML='';
+    ALLOC.forEach(function(r){
+      var saved=store.get('simp_pct_'+r.id); var p=(saved!==null&&saved!=='')?saved:r.pct;
+      var tr=document.createElement('tr'); tr.setAttribute('data-aid',r.id);
+      tr.innerHTML='<td><span class="pn">'+r.name+'</span><div class="pi">'+r.inst+'</div></td>'
+        +'<td><span class="fit" data-fit="'+r.id+'">—</span><div class="fitnote">'+r.note+'</div></td>'
+        +'<td class="r"><input class="pct" data-aid="'+r.id+'" value="'+p+'">%</td>'
+        +'<td class="r amt" data-amt="'+r.id+'">\u2014</td>';
+      body.appendChild(tr);
+    });
+    var cap=store.get('simp_cap'); if(cap){ document.getElementById('capInput').value=cap; }
+    body.querySelectorAll('input.pct').forEach(function(inp){
+      inp.addEventListener('input',function(){ store.set('simp_pct_'+inp.getAttribute('data-aid'),inp.value); computeAlloc(); });
+    });
+    var ci=document.getElementById('capInput');
+    ci.addEventListener('input',function(){ store.set('simp_cap',ci.value.replace(/[^0-9.]/g,'')); computeAlloc(); });
+    computeAlloc();
+  }
+  function computeAlloc(){
+    var capRaw=(document.getElementById('capInput').value||'').replace(/[^0-9.]/g,'');
+    var cap=parseFloat(capRaw)||0, sum=0;
+    ALLOC.forEach(function(r){
+      var inp=document.querySelector('input.pct[data-aid="'+r.id+'"]'); if(!inp) return;
+      var p=parseFloat(inp.value)||0; sum+=p;
+      var cell=document.querySelector('[data-amt="'+r.id+'"]');
+      cell.textContent = cap>0 ? money(p/100*cap) : '\u2014';
+    });
+    var tot=document.getElementById('allocTot');
+    var rounded=Math.round(sum*10)/10;
+    tot.innerHTML='Weights total: <b>'+rounded+'%</b>'+(Math.abs(sum-100)>0.5?' \u2014 should sum to 100%':' \u2713');
+    tot.className='alloctot'+(Math.abs(sum-100)>0.5?' bad':'');
+  }
+  function updateAllocRegime(token){
+    ALLOC.forEach(function(r){
+      var f=document.querySelector('[data-fit="'+r.id+'"]'); if(!f) return;
+      var tr=document.querySelector('tr[data-aid="'+r.id+'"]');
+      if(r.always){ f.className='fit always'; f.textContent='ANYTIME'; if(tr) tr.classList.remove('on'); return; }
+      if(r.regimes.indexOf(token)>=0){ f.className='fit go'; f.textContent='\u2713 FITS NOW'; if(tr) tr.classList.add('on'); }
+      else { f.className='fit wait'; f.textContent='\u25cb WAIT'; if(tr) tr.classList.remove('on'); }
+    });
+  }
+
+  buildAlloc();
   compute();
 })();
 </script>
